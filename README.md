@@ -1,72 +1,112 @@
-# MACROSCOPE
+# US Economic Simulator and Tracker
 
-**MACROSCOPE v4.4** is a static, terminal-style U.S. economic outlook simulator and release-aware nowcasting dashboard. It runs on GitHub Pages, updates through GitHub Actions, and uses generated JSON snapshots so no API key is exposed to site visitors.
+**US Economic Simulator and Tracker** is an open-source, browser-based U.S. macroeconomic scenario simulator, official-data tracker, and release-aware nowcasting dashboard.
 
-## Live site
+It combines a large structural scenario model with regularly refreshed economic data, transparent release-surprise signals, shock modeling, and multi-horizon forecasts. The application is designed to run as a static GitHub Pages site while GitHub Actions securely updates the public data snapshot in the background.
 
-🌐 **[Open MACROSCOPE](](https://jcalepos146.github.io/US-Economic-Simulator/)/)**
+> **Important:** This project is an educational and analytical model. Its forecasts, scenario outputs, recession-risk scores, shock effects, and transmission coefficients are not official forecasts, investment advice, policy recommendations, or causal estimates.
 
+## What it does
 
-> MACROSCOPE is an educational and analytical model. Its forecasts, risk scores, and shock effects are not official forecasts, investment advice, or causal estimates.
+The project brings three related tools into one interface:
 
-## Current capabilities
+1. **Economic tracker** — follows selected official U.S. macroeconomic indicators and scheduled releases.
+2. **Scenario simulator** — lets users alter more than 70 economic, policy, market, institutional, and geopolitical assumptions.
+3. **Release-aware nowcasting system** — compares newly released data with the model's pre-release expectation and translates surprises into transparent, temporary model shocks.
 
-### Terminal overview
+## Key features
 
-- Bloomberg-inspired startup sequence and information-dense interface
-- Live-baseline dashboard with GDP, inflation, unemployment, recession risk, and Treasury yields
-- Economic-regime classification
-- What Changed attribution
-- Upcoming-release panel
-- GDP driver waterfall
-- Persistent macroeconomic risk monitor
+### Live U.S. economic baseline
 
-### Scenario model
+- Tracks a core set of official U.S. economic series through the FRED API
+- Displays current values, prior observations, revisions, freshness, and provenance
+- Anchors selected model outputs to observed GDP, inflation, Treasury yields, and mortgage rates
+- Synchronizes compatible observations directly with model inputs
+- Preserves user scenario deviations when the official baseline refreshes
+- Shows upcoming major economic releases
+- Includes GDP-driver attribution and a persistent macroeconomic risk monitor
 
-- More than 70 economic, policy, market, institutional, and geopolitical inputs
-- One-year, three-year, and ten-year horizons
-- Monetary, fiscal, innovation, bond, trade, housing, labor, energy, infrastructure, state, political-economy, and geopolitical modules
+### Scenario simulator
+
+- More than **70 adjustable inputs**
+- **1-year, 3-year, and 10-year** forecast horizons
+- Monetary policy and interest rates
+- Fiscal policy and public debt
+- Taxes and transfers
+- Labor markets and demographics
+- Housing and construction
+- Energy and commodities
+- Trade and tariffs
+- Infrastructure
+- Productivity and innovation
+- Financial markets and bond conditions
+- Institutional and political-economy assumptions
+- Geopolitical shocks
 - Taylor Rule mode
-- Country presets and comparison
-- Scenario saving, sharing, JSON export, CSV export, and undo/redo
+- Country presets and comparisons
+- Saved scenarios, sharing, undo/redo, JSON export, and CSV export
 
-### Phase A — structured shock engine
+### Structured shock engine
 
-- Adjustable shock magnitude
-- Temporary, persistent, and structural shock classes
-- Onset, lag, peak, duration, and decay
+The simulator supports temporary, persistent, and structural shocks with explicit timing behavior.
+
+Shock controls include:
+
+- Magnitude
+- Onset
+- Lag
+- Peak timing
+- Duration
+- Decay
 - State-dependent interactions
 - Diminishing overlap weights to reduce double counting
-- Shock-attribution inspector
-- Structured custom-shock builder
+- Shock-attribution inspection
+- Custom shock construction
 
-### Phase B — official-data synchronization
+### Official-data synchronization
 
-- Official FRED observations are downloaded by GitHub Actions
-- Compatible observations update the U.S. live baseline
-- GDP, CPI, Treasury yields, and mortgage rates act as transparent output anchors
-- User scenario deviations are preserved when the official baseline updates
-- Current, previous, revision, freshness, and provenance information are displayed
+GitHub Actions downloads official observations using a repository-level `FRED_API_KEY` and writes a public JSON snapshot for the browser.
 
-### Phase C — release-surprise engine
+The application currently maps **16 official series**, covering:
 
-Phase C compares a released value with MACROSCOPE's pre-release forecast and converts the standardized surprise into a temporary, decaying information shock.
+- Real GDP growth
+- Headline CPI
+- Core CPI
+- Unemployment
+- Labor-force participation
+- Nonfarm payroll change
+- Effective federal funds rate
+- Interest on reserve balances
+- 2-year Treasury yield
+- 10-year Treasury yield
+- 30-year mortgage rate
+- Housing starts
+- WTI crude oil
+- PCE inflation
+- Advance retail sales
+- Real personal-consumption growth
+
+Individual series can fall back to the previous valid observation when a temporary data request fails, allowing the rest of the update to continue.
+
+### Release-surprise and nowcasting engine
+
+For selected releases, the tracker creates a simple pre-release expectation from recent observations, compares that expectation with the released value, and standardizes the miss using recent forecast error.
 
 ```text
-Official observation
-        ↓
-MACROSCOPE expected value
-        ↓
-Actual − expected
-        ↓
-Normalize by rolling forecast error
-        ↓
+Official release
+      ↓
+Pre-release model expectation
+      ↓
+Actual − Expected
+      ↓
+Normalize by recent forecast error
+      ↓
 Release-specific transmission channels
-        ↓
-GDP, inflation, rates, confidence, markets, and recession risk respond
+      ↓
+Temporary effects on the economic outlook
 ```
 
-The first Phase C release families are:
+The current release families include:
 
 - Employment Situation
 - Consumer Price Index
@@ -74,23 +114,25 @@ The first Phase C release families are:
 - Retail Sales
 - Personal Income and Outlays
 
-The release engine includes:
+The release engine records:
 
-- Transparent weighted three-period forecasts
-- Historical one-step backtests
-- Mean absolute error and root mean squared error
+- Expected value
+- Actual value
+- Raw surprise
+- Standardized surprise
+- Historical forecast error
+- Confidence
+- Release version
+- Shock duration and decay
+- Model targets and coefficients
+- Backtested MAE and RMSE
 - Directional accuracy
-- Standardized surprises measured in forecast-error standard deviations
-- Versioned release IDs
-- Revision replacement rather than duplicate application
-- Decay through the Phase A timing system
-- Supersession weights so newer releases gradually replace older information
-- A Release Surprises page with expected, actual, raw surprise, standardized surprise, and model effects
-- A toggle to compare the model with release signals enabled or disabled
+
+Revisions replace prior versions of the same release signal rather than being applied as duplicate shocks.
 
 ## Forecast methodology
 
-The initial forecasting method is deliberately simple and auditable:
+The current short-horizon release expectation is intentionally simple and auditable.
 
 ```text
 Expected next value =
@@ -108,40 +150,26 @@ Standardized surprise =
 Raw surprise ÷ rolling historical RMSE
 ```
 
-The standardized surprise is capped at ±3.0 standard deviations to reduce the effect of extreme data errors and unstable early samples.
+Standardized surprises are capped at **±3.0 standard deviations** to limit the impact of extreme observations, unstable early samples, and possible data errors.
 
-Transmission coefficients are defined explicitly in `SURPRISE_SERIES_SPECS` inside `scripts/update_calendar.py`. They are expert-prior scenario coefficients, not estimated causal relationships. Each generated JSON shock exposes:
+Release-transmission coefficients are defined explicitly in `SURPRISE_SERIES_SPECS` in `scripts/update_calendar.py`. They are transparent expert-prior scenario coefficients rather than statistically estimated causal effects.
 
-- The forecast
-- The actual value
-- Forecast error scale
-- Standardized surprise
-- Confidence
-- Duration and decay
-- Every target and coefficient
+## Architecture
 
-## Official series
+The application uses a static-site architecture so the FRED API key never needs to be exposed in browser code.
 
-The updater retrieves a core set of official series, including:
+```text
+FRED API
+   ↓
+GitHub Actions runner
+   │  uses encrypted FRED_API_KEY
+   ↓
+data/economic-calendar.json
+   ↓
+Static GitHub Pages application
+```
 
-- Real GDP growth
-- Headline CPI
-- Core CPI
-- Unemployment
-- Labor-force participation
-- Nonfarm payroll change
-- Effective federal funds rate
-- Interest on reserve balances
-- Two-year Treasury yield
-- Ten-year Treasury yield
-- Thirty-year mortgage rate
-- Housing starts
-- WTI crude oil
-- PCE inflation
-- Advance retail sales
-- Real personal-consumption growth
-
-Series availability may vary. A failed individual series can fall back to the previous valid snapshot without preventing the rest of the deployment.
+The browser consumes the generated JSON snapshot and never receives the API key.
 
 ## Repository structure
 
@@ -155,40 +183,31 @@ Series availability may vary. A failed individual series can fall back to the pr
 ├── scripts/
 │   └── update_calendar.py
 ├── index.html
+├── LICENSE
+├── PHASE_B_OFFICIAL_DATA.md
 └── README.md
 ```
 
-Keep these paths at the repository root. Do not place them inside an extra folder such as `macroscope_phaseC_update/`.
+Keep these paths at the repository root because the workflow and frontend expect this structure.
 
-## Installation
+## Getting started
 
-### 1. Replace the files together
+### 1. Fork or clone the repository
 
-Phase C changes the frontend, updater, workflow validation, and JSON schema. Replace these files in one commit:
-
-```text
-index.html
-scripts/update_calendar.py
-data/economic-calendar.json
-.github/workflows/static.yml
-README.md
+```bash
+git clone <your-repository-url>
+cd <repository-directory>
 ```
 
-Suggested commit message:
+### 2. Create a FRED API key
 
-```text
-Implement Phase C release surprise engine
-```
-
-### 2. Create a free FRED API key
-
-Request a key from the official FRED API site:
+A free API key can be requested from the Federal Reserve Bank of St. Louis:
 
 <https://fred.stlouisfed.org/docs/api/api_key.html>
 
-### 3. Store the key as a GitHub Actions secret
+### 3. Add the API key to GitHub Actions
 
-In the repository:
+In the repository, open:
 
 ```text
 Settings
@@ -197,15 +216,17 @@ Settings
 → New repository secret
 ```
 
-Name it exactly:
+Create a secret named exactly:
 
 ```text
 FRED_API_KEY
 ```
 
-Never place the key in `index.html`, committed JavaScript, or the public JSON file.
+Do **not** place the key in `index.html`, committed JavaScript, or the public JSON snapshot.
 
-### 4. Configure Pages
+### 4. Enable GitHub Pages
+
+Open:
 
 ```text
 Settings
@@ -215,17 +236,11 @@ Settings
 → GitHub Actions
 ```
 
-Use only one Pages deployment workflow. The included `static.yml` both generates the data and deploys the site.
+The included workflow both generates the economic-data snapshot and deploys the static site.
 
-### 5. Run the first update manually
+### 5. Run the workflow
 
-```text
-Actions
-→ Update economic calendar and deploy Pages
-→ Run workflow
-→ main
-→ Run workflow
-```
+Open the repository's **Actions** tab, select **Update economic calendar and deploy Pages**, and run the workflow manually once.
 
 The workflow will:
 
@@ -233,59 +248,57 @@ The workflow will:
 2. Set up Python.
 3. Download the FRED release calendar.
 4. Download mapped official series.
-5. Calculate forecasts and historical forecast errors.
-6. Generate versioned release surprises and decaying shock channels.
-7. Write `data/economic-calendar.json` using schema version 3.
-8. Upload and deploy the GitHub Pages artifact.
+5. Calculate release forecasts and historical forecast errors.
+6. Generate versioned release-surprise signals.
+7. Write `data/economic-calendar.json`.
+8. Deploy the repository through GitHub Pages.
 
 ## Automatic updates
 
-The included workflow runs:
+The included GitHub Actions workflow runs:
 
 - On pushes to `main`
-- When manually triggered
+- On manual dispatch
 - Once daily
 - Several additional times on weekdays
 
-GitHub Actions schedules are not guaranteed to run at the exact scheduled minute. The site displays the snapshot generation time so visitors can judge freshness.
+Scheduled GitHub Actions runs are not guaranteed to execute at the exact scheduled minute. The generated data include a timestamp so users can judge snapshot freshness.
 
 ## Running locally
 
-The updater uses only the Python standard library.
+The data updater uses the Python standard library and does not require third-party Python packages.
 
 ### macOS or Linux
 
 ```bash
 export FRED_API_KEY="your_fred_api_key"
 python3 scripts/update_calendar.py
+python3 -m http.server 8000
 ```
 
-### PowerShell
+### Windows PowerShell
 
 ```powershell
 $env:FRED_API_KEY="your_fred_api_key"
 python scripts/update_calendar.py
+python -m http.server 8000
 ```
 
-Then serve the repository through a local HTTP server rather than opening `index.html` directly:
-
-```bash
-python3 -m http.server 8000
-```
-
-Open:
+Then open:
 
 <http://localhost:8000>
 
-## Generated JSON structure
+Serving the repository through a local HTTP server is preferable to opening `index.html` directly because the application loads the generated JSON file.
 
-The browser reads:
+## Generated data
+
+The frontend reads:
 
 ```text
 data/economic-calendar.json
 ```
 
-The top-level objects are:
+The current generated schema contains three principal sections:
 
 ```json
 {
@@ -297,110 +310,81 @@ The top-level objects are:
 
 ### `events`
 
-Contains historical and upcoming release dates, official observations attached to the latest released occurrence, model forecasts attached to the next occurrence, and release-surprise summaries.
+Contains historical and upcoming economic releases, attached official observations, model forecasts, and release-surprise summaries.
 
 ### `officialData`
 
-Contains the latest observation, previous period, initial-release comparison, revision, age, stale status, source, and model mapping for each series.
+Contains mapped official observations and related metadata, including current values, prior periods, revisions where available, freshness, provenance, and model mappings.
 
 ### `surpriseEngine`
 
-Contains:
-
-- Active and decaying release shocks
-- Stable observation-based shock IDs
-- Version IDs for revision handling
-- Forecasts and standardized surprises
-- Release-specific transmission channels
-- Model confidence and timing parameters
-- Forecast performance by series
+Contains active and decaying release signals, stable observation IDs, revision-aware version IDs, forecasts, standardized surprises, transmission channels, confidence values, timing parameters, and forecast-performance statistics.
 
 ## Revision handling
 
-A release shock has a stable ID based on its series and observation period:
+Release signals use stable IDs based on the series and observation period, for example:
 
 ```text
 release-unemployment-2026-07-01
 ```
 
-Its version ID changes if the actual value or revision changes. The updater replaces the existing version rather than adding the release again. The JSON also records the incremental revision effects.
+If the underlying observation is revised, the version changes while the stable release identity remains the same. The updater replaces the previous version rather than applying the revision as a second independent release shock.
 
-## Data freshness and fallback behavior
+## Resilience and data freshness
 
-The updater:
+The updater is designed to avoid replacing a useful snapshot with an empty or partially failed request.
 
-- Splits the calendar into smaller date windows
-- Retries timeouts, HTTP 429 responses, and temporary server errors
-- Uses exponential backoff
-- Writes the JSON atomically
-- Preserves a previous valid calendar after a temporary calendar failure
-- Preserves individual prior observations when one series is unavailable
-- Does not replace a valid snapshot with an empty result
+It can:
 
-## Troubleshooting
+- Split calendar requests into smaller date windows
+- Retry temporary timeouts and server errors
+- Back off after rate limits
+- Write generated JSON atomically
+- Preserve a previous valid calendar after a temporary calendar failure
+- Preserve prior observations when an individual series is unavailable
+- Mark stale or fallback observations in the generated metadata
 
-### `FRED_API_KEY is missing or empty`
+## Interpretation and limitations
 
-Confirm the repository secret is named exactly `FRED_API_KEY` under Actions secrets.
+This project is a **scenario-analysis and tracking tool**, not an econometric forecasting service.
 
-### `scripts/update_calendar.py is missing`
+Users should keep several limitations in mind:
 
-The script must be located at the repository-root path:
+- Scenario coefficients are model assumptions, not identified causal estimates.
+- Release-surprise transmission coefficients are expert priors rather than estimated structural parameters.
+- The weighted release forecast is deliberately simple and is not intended to replace professional consensus forecasts.
+- Long-horizon results are conditional scenarios and become increasingly uncertain as the horizon expands.
+- Recession risk is a deterministic model score rather than an official probability estimate.
+- Official observations can be revised after their initial publication.
+- Data availability and update timing depend on upstream providers.
 
-```text
-scripts/update_calendar.py
-```
+The project's emphasis is on **transparency, experimentation, and traceable assumptions** rather than false precision.
 
-### The workflow still says “Deploy static content to Pages”
+## Data sources and attribution
 
-Replace the old default Pages workflow with the included combined `.github/workflows/static.yml`. Keep only one workflow that deploys Pages.
+This project uses the **FRED® API** provided by the Federal Reserve Bank of St. Louis. It is not endorsed or certified by the Federal Reserve Bank of St. Louis.
 
-### The workflow reports a timeout
+Economic series available through FRED may originate from the Federal Reserve, Bureau of Economic Analysis, Bureau of Labor Statistics, Census Bureau, Treasury, and other underlying providers. Individual series may have their own attribution, copyright, redistribution, or usage terms.
 
-Run it again. The updater retries and preserves valid prior data when possible. The first successful run cannot use a fallback because no prior generated snapshot exists.
-
-### Official data load, but release signals are empty
-
-Confirm the generated JSON reports:
-
-```json
-"schemaVersion": 3
-```
-
-and includes a nonempty `surpriseEngine.shocks` array. Some signals may be absent until the mapped series have enough observations for a forecast and backtest.
-
-### Metrics do not appear to move
-
-Open **Release Surprises** and confirm **Release signals: ON**. Signals also decay over time and may be very small if the actual release was close to the model forecast.
-
-### The page shows old information
-
-Check `generatedAt` in `data/economic-calendar.json`, inspect the workflow logs, and hard-refresh the site with `Ctrl+Shift+R` or `Cmd+Shift+R`.
-
-## Security model
-
-GitHub Pages is static and cannot safely hide private API keys in frontend code.
-
-The safe architecture is:
-
-```text
-FRED API
-   ↓
-GitHub Actions runner using encrypted FRED_API_KEY
-   ↓
-Public generated JSON snapshot
-   ↓
-GitHub Pages browser application
-```
-
-The browser never receives the FRED key.
-
-## Attribution
-
-This product uses the FRED® API but is not endorsed or certified by the Federal Reserve Bank of St. Louis.
-
-Release dates originate with statistical agencies and may change. FRED calendar dates do not guarantee that a value will be available on FRED at the exact listed time.
+The project does not claim ownership of third-party economic data.
 
 ## License
 
-Add the license appropriate for your repository. Confirm that any redistributed third-party datasets, fonts, libraries, or content permit your intended use.
+The source code for **US Economic Simulator and Tracker** is licensed under the **GNU General Public License v3.0 (GPL-3.0)** unless otherwise noted. See [`LICENSE`](LICENSE) for the full license text.
+
+The GPL applies to the project's original source code. It does **not** grant new rights to third-party datasets, economic series, trademarks, or other externally sourced material. Those remain subject to the terms of their respective owners and providers.
+
+## Contributing
+
+Issues, bug reports, model critiques, interface improvements, new scenario modules, additional data mappings, and pull requests are welcome.
+
+For changes to model behavior, contributions are especially useful when they document:
+
+- The economic mechanism being represented
+- The variables affected
+- The assumed direction and magnitude
+- Timing and persistence
+- Possible interactions or double-counting risks
+- Sources or reasoning supporting the change
+
+Transparent assumptions are a core design goal of the project.
