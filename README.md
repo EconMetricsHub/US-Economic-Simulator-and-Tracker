@@ -1,5 +1,9 @@
 # US Economic Simulator and Tracker
 
+## [▶ Open the Live Simulator & Tracker](https://econmetricshub.github.io/US-Economic-Simulator-and-Tracker/)
+
+**Live site:** [https://econmetricshub.github.io/US-Economic-Simulator-and-Tracker/](https://econmetricshub.github.io/US-Economic-Simulator-and-Tracker/)
+
 **US Economic Simulator and Tracker** is an open-source, browser-based U.S. macroeconomic scenario simulator, official-data tracker, and release-aware nowcasting dashboard.
 
 It combines a large structural scenario model with regularly refreshed economic data, transparent release-surprise signals, shock modeling, and multi-horizon forecasts. The application is designed to run as a static GitHub Pages site while GitHub Actions securely updates the public data snapshot in the background.
