@@ -10,6 +10,17 @@ It combines a large structural scenario model with regularly refreshed economic 
 
 > **Important:** This project is an educational and analytical model. Its forecasts, scenario outputs, recession-risk scores, shock effects, and transmission coefficients are not official forecasts, investment advice, policy recommendations, or causal estimates.
 
+
+## v5 intelligence layer
+
+The v5 overhaul adds two optional live-intelligence features while preserving the static-site model:
+
+- **Live News Intelligence**: an hourly GitHub Actions job queries GDELT DOC 2.0 for economic, U.S. political, and geopolitical headlines and writes `data/news-feed.json`.
+- **AI Shock Studio**: a Duck.ai-style natural-language scenario composer that turns a user prompt or news headline into a reviewable structured shock. It requires an optional serverless bridge under `worker/` so API credentials never enter the static site.
+- **Automatic Pages deployment**: every push to `main` deploys automatically, and the hourly scheduled run refreshes data and redeploys without manual intervention.
+
+The AI layer never injects a shock automatically: generated coefficients are validated in the browser and require an explicit **Inject approved draft** click.
+
 ## What it does
 
 The project brings three related tools into one interface:
@@ -392,3 +403,13 @@ For changes to model behavior, contributions are especially useful when they doc
 - Sources or reasoning supporting the change
 
 Transparent assumptions are a core design goal of the project.
+
+## MACROSCOPE v6 additions
+
+- **Portfolio Lab:** factor-based 12-month stress testing for a user-defined portfolio.
+- **Scenario Tree:** probability-weighted branching analysis across up to six captured scenarios.
+- **Ask MACROSCOPE:** LLM-backed explanations grounded in current model state, with a local no-backend fallback.
+- **News → Shock → Portfolio:** headlines can be translated into reviewable shocks, then into macro and portfolio consequences.
+- **Automatic Pages refresh/deploy:** the v5 GitHub Actions workflow remains the deployment path; pushes and the hourly schedule deploy without manual Pages publishing.
+
+See `V6_OVERHAUL.md` for details and caveats.

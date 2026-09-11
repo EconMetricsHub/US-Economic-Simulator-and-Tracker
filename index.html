@@ -206,6 +206,37 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
 .shock-library-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:14px 0 8px;}
 .shock-library-head input{background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:10px;padding:6px 9px;border-radius:var(--r);width:240px;outline:none;}
 .shock-library-head input:focus{border-color:var(--accent);}
+
+/* === V5 INTELLIGENCE LAYER === */
+.ai-studio{background:linear-gradient(180deg,rgba(74,158,255,.06),rgba(11,20,34,.9));border:1px solid var(--border2);border-radius:var(--r-lg);padding:14px;margin:0 0 14px;}
+.ai-studio-grid{display:grid;grid-template-columns:minmax(320px,1.05fr) minmax(320px,.95fr);gap:12px;}
+.ai-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px;min-width:0;}
+.ai-box-title{font-family:var(--font-mono);font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--info);margin-bottom:8px;}
+.ai-prompt{width:100%;min-height:126px;resize:vertical;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:var(--r);font-family:var(--font-ui);font-size:12px;line-height:1.45;outline:none;}
+.ai-prompt:focus,.ai-endpoint:focus{border-color:var(--info);}
+.ai-endpoint{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);padding:7px 9px;border-radius:var(--r);font-family:var(--font-mono);font-size:9px;outline:none;margin:8px 0;}
+.ai-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}
+.ai-status{font-family:var(--font-mono);font-size:9px;color:var(--muted);margin-left:auto;}
+.ai-result{min-height:188px;max-height:285px;overflow:auto;background:#050a13;border:1px solid var(--border);border-radius:var(--r);padding:10px;color:var(--text-dim);font-family:var(--font-mono);font-size:9.5px;line-height:1.5;white-space:pre-wrap;}
+.ai-result strong{color:var(--text);}
+.ai-note{font-size:9.5px;color:var(--muted);line-height:1.45;margin-top:8px;}
+.news-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px;}
+.news-tabs{display:flex;gap:6px;flex-wrap:wrap;}
+.news-tab{font-family:var(--font-mono);font-size:9px;padding:5px 9px;border:1px solid var(--border);border-radius:999px;background:var(--surface2);color:var(--text-dim);cursor:pointer;}
+.news-tab.active,.news-tab:hover{border-color:var(--accent-border);color:var(--accent);background:var(--accent-dim);}
+.news-meta-line{font-family:var(--font-mono);font-size:9px;color:var(--muted);margin-left:auto;}
+.news-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+.news-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:12px;display:flex;flex-direction:column;gap:7px;min-height:150px;}
+.news-card:hover{border-color:var(--border2);}
+.news-card-top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.news-cat{font-family:var(--font-mono);font-size:8px;text-transform:uppercase;letter-spacing:.8px;color:var(--info);}
+.news-time{font-family:var(--font-mono);font-size:8px;color:var(--muted);}
+.news-title{font-size:13px;font-weight:600;line-height:1.32;color:var(--text);}
+.news-source{font-family:var(--font-mono);font-size:9px;color:var(--muted);}
+.news-actions{display:flex;gap:7px;margin-top:auto;}
+.news-empty{grid-column:1/-1;padding:24px;text-align:center;color:var(--muted);font-family:var(--font-mono);font-size:10px;border:1px dashed var(--border);border-radius:var(--r);}
+@media(max-width:900px){.ai-studio-grid,.news-grid{grid-template-columns:1fr;}}
+
 @media(max-width:1050px){.shock-toolbar{grid-template-columns:1fr 1fr}.shock-workbench{grid-template-columns:1fr}.custom-core-grid{grid-template-columns:1fr 1fr}.custom-channel-head,.custom-channel-row{grid-template-columns:1fr .7fr .65fr .65fr}}
 @media(max-width:620px){.shock-toolbar{grid-template-columns:1fr}.si-controls{grid-template-columns:1fr}.custom-core-grid{grid-template-columns:1fr}.custom-channel-head{display:none}.custom-channel-row{grid-template-columns:1fr 1fr}.custom-channel-row select:first-child{grid-column:1/-1}.attr-output-grid{grid-template-columns:1fr}.shock-library-head{align-items:stretch;flex-direction:column}.shock-library-head input{width:100%}}
 
@@ -615,6 +646,10 @@ kbd{font-family:var(--font-mono);font-size:10.5px;background:var(--surface3);bor
 .ov-release-impact{margin-top:8px;padding:7px 9px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);font-family:var(--font-mono);font-size:9px;color:var(--text-dim);line-height:1.55;}
 @media(max-width:820px){.surprise-summary{grid-template-columns:1fr 1fr}.surprise-values{grid-template-columns:1fr}.perf-table{display:block;overflow-x:auto}}
 
+
+/* === V6: PORTFOLIO LAB / SCENARIO TREE / ANALYST === */
+.v6-kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin:0 0 12px}.v6-kpi{background:var(--surface);border:1px solid var(--border);padding:12px}.v6-kpi-lbl{font:9px var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}.v6-kpi-val{font:700 21px var(--font-mono);margin-top:4px;color:var(--text)}.v6-kpi-sub{font:9px var(--font-mono);color:var(--muted);margin-top:3px}.portfolio-toolbar,.branch-toolbar,.analyst-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}.portfolio-toolbar input,.branch-toolbar input,.analyst-endpoint{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 9px;font:11px var(--font-mono)}.portfolio-table{border:1px solid var(--border);background:var(--surface);overflow:hidden}.portfolio-head,.portfolio-row{display:grid;grid-template-columns:110px minmax(180px,1.7fr) 110px 120px 120px 78px;gap:8px;align-items:center;padding:8px 10px}.portfolio-head{background:var(--surface2);font:9px var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}.portfolio-row{border-top:1px solid var(--border);font:11px var(--font-mono)}.portfolio-row select,.portfolio-row input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px;font:11px var(--font-mono)}.portfolio-return.pos{color:var(--pos)}.portfolio-return.neg{color:var(--neg)}.portfolio-note{font:10px var(--font-mono);line-height:1.55;color:var(--muted);margin-top:10px;padding:10px;border:1px solid var(--border);background:var(--surface)}.portfolio-top{display:grid;grid-template-columns:1.3fr .7fr;gap:10px;margin-bottom:12px}.portfolio-panel,.branch-card,.analyst-box{border:1px solid var(--border);background:var(--surface);padding:12px}.factor-bars{display:grid;gap:7px}.factor-row{display:grid;grid-template-columns:105px 1fr 70px;gap:8px;align-items:center;font:10px var(--font-mono)}.factor-track{height:6px;background:var(--surface2);position:relative}.factor-fill{height:100%;background:var(--accent)}.factor-val{text-align:right;color:var(--text-dim)}.branch-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px}.branch-card{position:relative}.branch-name{font:700 13px var(--font-ui);color:var(--text);margin-bottom:3px}.branch-meta{font:9px var(--font-mono);color:var(--muted);margin-bottom:9px}.branch-prob{display:flex;align-items:center;gap:6px;font:10px var(--font-mono);color:var(--text-dim)}.branch-prob input{width:80px}.branch-metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin:9px 0}.branch-metric{background:var(--surface2);padding:6px}.branch-metric b{display:block;font:700 12px var(--font-mono);color:var(--text)}.branch-metric span{font:8px var(--font-mono);color:var(--muted);text-transform:uppercase}.branch-actions{display:flex;gap:6px}.tree-summary{border:1px solid var(--border);background:var(--surface);padding:12px}.analyst-layout{display:grid;grid-template-columns:1.05fr .95fr;gap:10px}.analyst-prompt{width:100%;min-height:130px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px;font:12px/1.5 var(--font-ui);resize:vertical}.analyst-answer{white-space:pre-wrap;min-height:180px;font:12px/1.55 var(--font-ui);color:var(--text-dim);background:var(--bg);border:1px solid var(--border);padding:12px}.quick-prompts{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.pipeline-strip{display:flex;gap:7px;align-items:center;flex-wrap:wrap;padding:9px 10px;border:1px solid var(--border);background:var(--surface2);margin-bottom:11px;font:10px var(--font-mono);color:var(--text-dim)}.pipeline-step{padding:4px 7px;border:1px solid var(--border);background:var(--surface)}.pipeline-arrow{color:var(--accent)}.draft-impact{margin-top:8px;border-top:1px solid var(--border);padding-top:8px;font:10px var(--font-mono);color:var(--text-dim)}
+@media(max-width:1000px){.v6-kpis{grid-template-columns:repeat(2,1fr)}.portfolio-top,.analyst-layout{grid-template-columns:1fr}.branch-grid{grid-template-columns:1fr}.portfolio-head,.portfolio-row{grid-template-columns:85px 1fr 85px 90px 90px 58px}.branch-metrics{grid-template-columns:repeat(3,1fr)}}
 </style>
 </head>
 <body>
@@ -799,6 +834,35 @@ let activeEventIds = {};
 let selectedShockId = null;
 let shockProjectionMonth = 3;
 
+// ── V6 PORTFOLIO + BRANCH + ANALYST STATE ───────────────────────
+const PORTFOLIO_ASSETS = {
+  SPY:{name:'S&P 500 ETF proxy',type:'equity',base:7.0,vol:18,beta:1.00},
+  QQQ:{name:'Nasdaq-100 ETF proxy',type:'equity',base:8.0,vol:25,beta:1.25,sector:'Technology',sectorK:.24,rateK:-1.2},
+  IWM:{name:'Russell 2000 ETF proxy',type:'equity',base:8.0,vol:28,beta:1.20,sector:'Manufacturing',sectorK:.16,rateK:-1.0},
+  XLF:{name:'Financials ETF proxy',type:'equity',base:7.0,vol:22,beta:1.05,sector:'Finance',sectorK:.22,rateK:.45},
+  XLE:{name:'Energy ETF proxy',type:'equity',base:7.0,vol:30,beta:.85,sector:'Energy',sectorK:.20,oilK:.16},
+  XLI:{name:'Industrials ETF proxy',type:'equity',base:7.0,vol:21,beta:.95,sector:'Manufacturing',sectorK:.20},
+  XLK:{name:'Technology ETF proxy',type:'equity',base:8.0,vol:25,beta:1.20,sector:'Technology',sectorK:.28,rateK:-1.1},
+  XLU:{name:'Utilities ETF proxy',type:'equity',base:5.0,vol:16,beta:.55,rateK:-3.0},
+  SOXX:{name:'Semiconductor ETF proxy',type:'equity',base:9.0,vol:34,beta:1.45,sector:'Technology',sectorK:.34,rateK:-1.2,shippingK:-.45},
+  ITA:{name:'Aerospace & Defense ETF proxy',type:'equity',base:7.0,vol:20,beta:.78,defenseK:1.5},
+  VNQ:{name:'REIT ETF proxy',type:'equity',base:6.0,vol:24,beta:.75,sector:'Housing',sectorK:.20,rateK:-4.0},
+  TLT:{name:'Long Treasury ETF proxy',type:'bond',base:4.5,vol:15,duration:16.5},
+  IEF:{name:'7–10yr Treasury ETF proxy',type:'bond',base:4.2,vol:8,duration:7.5},
+  HYG:{name:'High-yield credit ETF proxy',type:'credit',base:6.5,vol:11,duration:3.8,spreadK:-.018,beta:.18},
+  GLD:{name:'Gold ETF proxy',type:'gold',base:4.0,vol:16,inflK:2.2,dollarK:-.45,rateK:-2.2,riskK:.08},
+  USO:{name:'Oil ETF proxy',type:'oil',base:0.0,vol:38,oilPctK:.82},
+  CASH:{name:'Cash / T-bill proxy',type:'cash',base:0.0,vol:.5}
+};
+const DEFAULT_PORTFOLIO = [
+  {symbol:'SPY',weight:40},{symbol:'QQQ',weight:15},{symbol:'IWM',weight:10},
+  {symbol:'TLT',weight:15},{symbol:'GLD',weight:10},{symbol:'CASH',weight:10}
+];
+let portfolioValue = +(localStorage.getItem('macroscope.portfolio.value')||100000);
+let portfolioHoldings = (()=>{try{const x=JSON.parse(localStorage.getItem('macroscope.portfolio.holdings')||'null');return Array.isArray(x)&&x.length?x:JSON.parse(JSON.stringify(DEFAULT_PORTFOLIO));}catch(e){return JSON.parse(JSON.stringify(DEFAULT_PORTFOLIO));}})();
+let scenarioBranches = (()=>{try{const x=JSON.parse(localStorage.getItem('macroscope.branches')||'[]');return Array.isArray(x)?x:[];}catch(e){return [];}})();
+let analystHistory = [];
+
 // ── CATEGORIES ───────────────────────────────────────────────────
 const CATEGORIES = [
   { id:'monetary', label:'Monetary Policy', icon:'⚡',
@@ -958,7 +1022,11 @@ const ANALYSIS_SECTIONS = [
   { id:'observed',    label:'Official Data', icon:'◉' },
   { id:'calendar',    label:'Economic Calendar', icon:'▤' },
   { id:'surprises',   label:'Release Surprises', icon:'⇄' },
+  { id:'news',        label:'Live News Intelligence', icon:'◒' },
   { id:'events',      label:'Events & Shocks', icon:'◬' },
+  { id:'portfolio',   label:'Portfolio Lab', icon:'▦' },
+  { id:'branches',    label:'Scenario Tree', icon:'⑂' },
+  { id:'analyst',     label:'Ask MACROSCOPE', icon:'✦' },
   { id:'charts',      label:'Charts & Analysis', icon:'◫' },
   { id:'scenarios',   label:'Scenarios', icon:'◩' },
   { id:'sensitivity', label:'Sensitivity Analysis', icon:'◧' },
@@ -2469,6 +2537,9 @@ function render() {
   renderOverview(m);         // dashboard narrative + releases + diagnostics
   renderShockWorkbench(m);   // active shock inspector + attribution (self-guards)
   renderReleaseSurprises();   // release-signal diagnostics (self-guards)
+  renderPortfolioLab(m);      // portfolio stress test (self-guards)
+  renderScenarioTreeSummary();// probability-weighted branch summary (self-guards)
+  renderAnalystSnapshot(m);   // analyst context panel (self-guards)
   scheduleHeavyRender();     // charts + sensitivity (Monte Carlo) debounced
   scheduleURLUpdate();       // keep shareable hash current
 }
@@ -2696,7 +2767,7 @@ function buildContent() {
   let html = `<div class="section active" id="sec-overview">
     <div class="ov-shell">
       <div class="ov-statusbar">
-        <div class="ov-status-left"><span class="ov-pill live">LIVE BASELINE</span><span class="ov-pill">MODEL v4.4</span><span class="ov-pill">${(COUNTRY_CONFIGS[currentCountry]||COUNTRY_CONFIGS.us).name}</span></div>
+        <div class="ov-status-left"><span class="ov-pill live">LIVE BASELINE</span><span class="ov-pill">MODEL v6.0</span><span class="ov-pill">${(COUNTRY_CONFIGS[currentCountry]||COUNTRY_CONFIGS.us).name}</span></div>
         <div class="ov-status-right"><span class="ov-pill" id="ov-data-status">CALENDAR PENDING</span><span class="ov-pill" id="ov-horizon-status">${timeHorizon}YR HORIZON</span></div>
       </div>
       <div class="ov-regime neutral" id="ov-regime"></div>
@@ -2772,8 +2843,38 @@ function buildContent() {
     <div id="surprise-performance"><div class="release-empty">Performance data are not available until the Phase C updater runs.</div></div>
   </div>`;
 
+
+  // Live geopolitical / political / economic news intelligence
+  html += `<div class="section" id="sec-news">
+    <div class="sec-hdr">
+      <div class="sec-title">Live News Intelligence</div>
+      <div class="sec-desc">Automatically refreshed economic, political, and geopolitical headlines. Use any item as context for a modeled shock without treating the article itself as a calibrated causal estimate.</div>
+    </div>
+    <div class="annotation">Headlines are a discovery layer. Sources can overlap, reports can be incomplete, and the simulator does not automatically convert news into model coefficients.</div>
+    <div class="news-toolbar">
+      <div class="news-tabs" id="news-tabs">
+        <button class="news-tab active" data-cat="all" onclick="setNewsCategory('all',this)">All</button>
+        <button class="news-tab" data-cat="economy" onclick="setNewsCategory('economy',this)">Economy</button>
+        <button class="news-tab" data-cat="politics" onclick="setNewsCategory('politics',this)">U.S. Politics</button>
+        <button class="news-tab" data-cat="geopolitics" onclick="setNewsCategory('geopolitics',this)">Geopolitics</button>
+      </div>
+      <div class="news-meta-line" id="news-meta">Loading…</div>
+    </div>
+    <div class="news-grid" id="news-grid"><div class="news-empty">Loading news snapshot…</div></div>
+  </div>`;
+
   // Events section
   html += buildEventsSection();
+
+  // V6 portfolio stress testing
+  html += buildPortfolioSection();
+
+  // V6 probability-weighted scenario tree
+  html += buildScenarioTreeSection();
+
+  // V6 analyst interface
+  html += buildAnalystSection();
+
   // Charts section
   html += `<div class="section" id="sec-charts">
     <div class="sec-hdr"><div class="sec-title">Charts &amp; Analysis</div><div class="sec-desc">Live economic projections, yield curve, sector health, and inflation decomposition.</div></div>
@@ -3016,6 +3117,27 @@ function buildEventsSection() {
       <div class="sec-desc">Build time-dependent scenarios with magnitude, persistence, transmission lags, interaction effects, and overlap controls. Metrics show the state at the selected month after shock onset.</div>
     </div>
 
+    <div class="ai-studio">
+      <div class="ai-studio-grid">
+        <div class="ai-box">
+          <div class="ai-box-title">AI Shock Studio · Duck.ai-style workflow</div>
+          <textarea id="ai-shock-prompt" class="ai-prompt" placeholder="Describe a shock in normal language — e.g. China blockades Taiwan for 45 days; semiconductor shipments collapse, oil rises, credit spreads widen, and the Fed delays cuts. Estimate a cautious 1-year transmission path."></textarea>
+          <input id="ai-shock-endpoint" class="ai-endpoint" placeholder="Serverless AI endpoint (Cloudflare Worker URL)" onchange="saveAIEndpoint(this.value)">
+          <div class="ai-actions">
+            <button class="btn primary" onclick="generateAIShock()">Generate structured shock</button>
+            <button class="btn" onclick="clearAIShockDraft()">Clear</button>
+            <span class="ai-status" id="ai-shock-status">Backend optional</span>
+          </div>
+          <div class="ai-note">The AI layer proposes coefficients; it does not override the model automatically. Review the draft, then inject it explicitly. The endpoint is stored only in this browser.</div>
+        </div>
+        <div class="ai-box">
+          <div class="ai-box-title">Proposed shock object</div>
+          <div class="ai-result" id="ai-shock-result">No AI draft yet. You can still use the manual structured-shock builder below.</div>
+          <div class="ai-actions" style="margin-top:8px"><button class="btn primary" id="ai-inject-btn" onclick="injectAIShockDraft()" disabled>Inject approved draft ↗</button></div>
+        </div>
+      </div>
+    </div>
+
     <div class="shock-toolbar">
       <div class="shock-panel">
         <div class="shock-panel-title">Scenario evaluation point</div>
@@ -3088,12 +3210,269 @@ function showSection(id, btn) {
   else if (id === 'observed') { renderOfficialData(); }
   else if (id === 'calendar') { loadEconomicCalendar(); }
   else if (id === 'surprises') { loadEconomicCalendar(); renderReleaseSurprises(); }
-  else if (id === 'events') { renderShockWorkbench(compute()); }
+  else if (id === 'news') { loadNewsFeed(); }
+  else if (id === 'events') { renderShockWorkbench(compute()); loadAIEndpoint(); }
+  else if (id === 'portfolio') { renderPortfolioLab(compute()); }
+  else if (id === 'branches') { renderScenarioTree(); }
+  else if (id === 'analyst') { loadAIEndpoint(); renderAnalystSnapshot(compute()); }
   else if (id === 'compare') { setTimeout(renderCountryComparison, 0); }
   else if (id === 'scenarios') { renderScenarios(); }
   else if (id === 'sensitivity') { sensitivityVisible = true; renderSensitivity(compute(), true); }
   else { chartsVisible = false; if (id !== 'sensitivity') sensitivityVisible = false; }
 }
+
+
+// ── V5 NEWS INTELLIGENCE + AI SHOCK STUDIO ──────────────────────
+let newsSnapshot = null;
+let newsCategory = 'all';
+let aiShockDraft = null;
+const NEWS_URL = 'data/news-feed.json';
+
+function escapeAttr(v) { return escapeHtml(v).replace(/`/g,'&#96;'); }
+
+async function loadNewsFeed(force=false) {
+  const grid=document.getElementById('news-grid');
+  const meta=document.getElementById('news-meta');
+  if (!grid) return;
+  if (newsSnapshot && !force) { renderNewsFeed(); return; }
+  grid.innerHTML='<div class="news-empty">Loading news snapshot…</div>';
+  try {
+    const r=await fetch(NEWS_URL+'?v='+Date.now(),{cache:'no-store'});
+    if (!r.ok) throw new Error('HTTP '+r.status);
+    newsSnapshot=await r.json();
+    renderNewsFeed();
+  } catch(err) {
+    grid.innerHTML=`<div class="news-empty">News snapshot unavailable. The scheduled updater may not have run yet.<br>${escapeHtml(err.message||err)}</div>`;
+    if (meta) meta.textContent='OFFLINE';
+  }
+}
+
+function setNewsCategory(cat,btn) {
+  newsCategory=cat;
+  document.querySelectorAll('.news-tab').forEach(x=>x.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderNewsFeed();
+}
+
+function renderNewsFeed() {
+  const grid=document.getElementById('news-grid'); const meta=document.getElementById('news-meta');
+  if (!grid || !newsSnapshot) return;
+  const items=(newsSnapshot.items||[]).filter(x=>newsCategory==='all'||x.category===newsCategory);
+  if (meta) meta.textContent=`UPDATED ${String(newsSnapshot.generatedAt||'').replace('T',' ').replace('Z',' UTC')} · ${items.length} ITEMS`;
+  if (!items.length) { grid.innerHTML='<div class="news-empty">No items in this category.</div>'; return; }
+  grid.innerHTML=items.slice(0,40).map((x,i)=>`<article class="news-card">
+    <div class="news-card-top"><span class="news-cat">${escapeHtml(x.category||'news')}</span><span class="news-time">${escapeHtml(formatNewsTime(x.publishedAt))}</span></div>
+    <div class="news-title">${escapeHtml(x.title||'Untitled')}</div>
+    <div class="news-source">${escapeHtml(x.domain||x.source||'Source')}</div>
+    <div class="news-actions"><a class="btn" href="${escapeAttr(x.url||'#')}" target="_blank" rel="noopener noreferrer">Open source ↗</a><button class="btn primary" onclick="modelNewsAsShock(${i})">Model &amp; stress portfolio</button></div>
+  </article>`).join('');
+}
+
+function formatNewsTime(v) {
+  if (!v) return '';
+  const d=new Date(v); if (Number.isNaN(d.getTime())) return String(v);
+  const mins=Math.max(0,Math.round((Date.now()-d.getTime())/60000));
+  if (mins<60) return `${mins}m ago`; if (mins<1440) return `${Math.round(mins/60)}h ago`;
+  return d.toLocaleDateString(undefined,{month:'short',day:'numeric'});
+}
+
+function modelNewsAsShock(index) {
+  if (!newsSnapshot) return;
+  const filtered=(newsSnapshot.items||[]).filter(x=>newsCategory==='all'||x.category===newsCategory);
+  const x=filtered[index]; if (!x) return;
+  openModelSection('events');
+  setTimeout(()=>{
+    const ta=document.getElementById('ai-shock-prompt');
+    if (ta) ta.value=`Turn this headline into a cautious, explicitly uncertain economic shock scenario for the U.S. simulator. Distinguish immediate market effects from macro effects, use no more than five model channels, and avoid assuming the headline is fully confirmed.\n\nHeadline: ${x.title}\nSource: ${x.domain||x.source||''}\nPublished: ${x.publishedAt||''}\nURL: ${x.url||''}`;
+    ta?.focus();
+    toast('Headline loaded → generate a shock → review → inject → Portfolio Lab updates automatically');
+  },0);
+}
+
+function saveAIEndpoint(v) { localStorage.setItem('macroscope.ai.endpoint',String(v||'').trim()); }
+function loadAIEndpoint() { const el=document.getElementById('ai-shock-endpoint'); if(el && !el.value) el.value=localStorage.getItem('macroscope.ai.endpoint')||''; }
+function clearAIShockDraft() { aiShockDraft=null; const r=document.getElementById('ai-shock-result'); if(r) r.textContent='No AI draft yet. You can still use the manual structured-shock builder below.'; const b=document.getElementById('ai-inject-btn'); if(b)b.disabled=true; const st=document.getElementById('ai-shock-status'); if(st)st.textContent='Backend optional'; }
+
+function aiContextPayload() {
+  const m=compute();
+  return {
+    country:currentCountry,
+    horizonYears:timeHorizon,
+    shockProjectionMonth,
+    currentMetrics:{gdp:m.gdp,cpi:m.cpi,unemployment:m.unemp,policyRate:vals.ffr,tenYear:m.tenyr,mortgage:m.mortg,recessionRisk:m.recessionRisk},
+    availableTargets:CUSTOM_SHOCK_TARGETS,
+    targetLabels:Object.fromEntries(CUSTOM_SHOCK_TARGETS.map(x=>[x,shockTargetLabel(x)])),
+    activeShocks:Object.keys(activeEventIds).map(id=>findShock(id)?.label).filter(Boolean)
+  };
+}
+
+async function generateAIShock() {
+  const prompt=document.getElementById('ai-shock-prompt')?.value.trim();
+  const endpoint=(document.getElementById('ai-shock-endpoint')?.value||localStorage.getItem('macroscope.ai.endpoint')||'').trim();
+  const st=document.getElementById('ai-shock-status'), out=document.getElementById('ai-shock-result'), btn=document.getElementById('ai-inject-btn');
+  if (!prompt) { toast('Describe the shock first'); return; }
+  if (!endpoint) { if(st)st.textContent='ADD ENDPOINT'; toast('Add the serverless AI endpoint URL'); return; }
+  saveAIEndpoint(endpoint); if(st)st.textContent='GENERATING…'; if(out)out.textContent='Generating structured shock proposal…'; if(btn)btn.disabled=true;
+  try {
+    const resp=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt,context:aiContextPayload()})});
+    if(!resp.ok) throw new Error(`AI endpoint HTTP ${resp.status}`);
+    const payload=await resp.json();
+    const draft=payload.shock||payload;
+    aiShockDraft=validateAIShockDraft(draft);
+    if(out) {
+      const preview=previewAIShockPortfolioImpact(aiShockDraft);
+      out.textContent=JSON.stringify(aiShockDraft,null,2)+(preview?`
+
+PORTFOLIO PREVIEW
+${preview}`:'');
+    }
+    if(btn)btn.disabled=false; if(st)st.textContent='REVIEW REQUIRED';
+  } catch(err) {
+    aiShockDraft=null; if(out)out.textContent='Generation failed: '+(err.message||err); if(st)st.textContent='ERROR';
+  }
+}
+
+function validateAIShockDraft(d) {
+  if (!d || typeof d!=='object') throw new Error('Response did not contain a shock object');
+  const type=['temporary','persistent','structural'].includes(d.shockType)?d.shockType:'persistent';
+  const channels=(Array.isArray(d.channels)?d.channels:[]).filter(c=>CUSTOM_SHOCK_TARGETS.includes(c.target)&&Number.isFinite(+c.effect)).slice(0,5).map(c=>({
+    target:c.target,effect:+c.effect,lagMonths:Math.max(0,Math.min(60,+c.lagMonths||0)),peakMonth:Math.max(1,Math.min(120,+c.peakMonth||1))
+  }));
+  if(!channels.length) throw new Error('No valid model channels returned');
+  return {
+    label:String(d.label||d.name||'AI-generated shock').slice(0,120),
+    category:String(d.category||'Custom').slice(0,40),
+    shockType:type,
+    durationMonths:Math.max(1,Math.min(240,+d.durationMonths||SHOCK_TYPE_DEFAULTS[type].durationMonths)),
+    peakMonth:Math.max(1,Math.min(120,+d.peakMonth||SHOCK_TYPE_DEFAULTS[type].peakMonth)),
+    decayRate:Math.max(0,Math.min(1,+d.decayRate||SHOCK_TYPE_DEFAULTS[type].decayRate)),
+    confidence:Math.max(.05,Math.min(1,+d.confidence||.6)),
+    magnitude:Math.max(.05,Math.min(3,+d.magnitude||1)),
+    rationale:String(d.rationale||''), assumptions:Array.isArray(d.assumptions)?d.assumptions.slice(0,6):[], channels
+  };
+}
+
+function injectAIShockDraft() {
+  const d=aiShockDraft; if(!d) return;
+  const id='ai_'+(++customEventCount)+'_'+Date.now().toString(36);
+  const gdp=d.channels.find(c=>c.target==='gdpA')?.effect||0, cpi=d.channels.find(c=>c.target==='cpiA')?.effect||0, sp=d.channels.find(c=>c.target==='spA')?.effect||0;
+  const directional=gdp||sp/10||-cpi;
+  const ev=enrichEventDefinition({id,label:d.label,cat:d.category,pos:directional>=0,shockType:d.shockType,durationMonths:d.durationMonths,peakMonth:d.peakMonth,decayRate:d.decayRate,confidence:d.confidence,channels:d.channels,chips:d.channels.slice(0,3).map(c=>`${shockTargetLabel(c.target)} ${formatShockEffect(c.target,c.effect)}`)});
+  EVENTS.push(ev); activeEventIds[id]={...defaultShockConfig(ev),magnitude:d.magnitude}; selectedShockId=id;
+  const grid=document.getElementById(ev.pos?'positive-shock-grid':'negative-shock-grid'); if(grid)grid.insertAdjacentHTML('beforeend',buildEventCard(ev));
+  render(); renderEventLog(); commitChange(); toast('AI shock injected · Portfolio Lab stress results updated');
+}
+
+
+// ── V6 PORTFOLIO LAB ─────────────────────────────────────────────
+function savePortfolioState(){
+  localStorage.setItem('macroscope.portfolio.holdings',JSON.stringify(portfolioHoldings));
+  localStorage.setItem('macroscope.portfolio.value',String(portfolioValue));
+}
+function portfolioAssetOptions(selected){return Object.entries(PORTFOLIO_ASSETS).map(([sym,a])=>`<option value="${sym}"${sym===selected?' selected':''}>${sym} — ${escapeHtml(a.name)}</option>`).join('');}
+function effectiveScenarioInputs(){
+  const x={...vals};
+  const sr=resolveActiveShocks(x), cr=resolveCalendarShocks();
+  applyShockInputEffects(x,sr.inputEffects); applyShockInputEffects(x,cr.inputEffects);
+  return x;
+}
+function assetScenarioReturn(sym,m,inputs=null){
+  const a=PORTFOLIO_ASSETS[sym]; if(!a) return 0;
+  const x=inputs||effectiveScenarioInputs();
+  const market=(m.sp500-(BASELINES.sp500||100));
+  const rateGap=m.tenyr-(BASELINES.tenyr||4.2);
+  const inflGap=m.cpi-(BASELINES.cpi||2.5);
+  const dollarGap=m.dollarAdj-(BASELINES.dollarAdj||104);
+  const riskGap=Math.max(0,80-(m.fsi||80));
+  const oilBase=getSliderDefault('oil')||72;
+  const oilDelta=(x.oil??oilBase)-oilBase;
+  const oilPct=oilBase?oilDelta/oilBase*100:0;
+  if(a.type==='cash') return +(Math.max(0,x.ffr||0)).toFixed(2);
+  if(a.type==='bond') return +(a.base - (a.duration||0)*rateGap + riskGap*.025).toFixed(2);
+  if(a.type==='credit') {
+    const spreadGap=(x.hySpreads??350)-(getSliderDefault('hySpreads')||350);
+    return +(a.base + (a.beta||0)*market - (a.duration||0)*rateGap + (a.spreadK||0)*spreadGap).toFixed(2);
+  }
+  if(a.type==='gold') return +(a.base+(a.inflK||0)*inflGap+(a.dollarK||0)*dollarGap+(a.rateK||0)*rateGap+(a.riskK||0)*riskGap).toFixed(2);
+  if(a.type==='oil') return +(a.base+(a.oilPctK||0)*oilPct).toFixed(2);
+  let r=a.base+(a.beta||0)*market+(a.rateK||0)*rateGap+(a.oilK||0)*oilDelta+(a.shippingK||0)*((x.shippingCost??4)-(getSliderDefault('shippingCost')||4))+(a.defenseK||0)*((x.defenseSpend??3.5)-(getSliderDefault('defenseSpend')||3.5));
+  if(a.sector && m.sectorOutputs?.[a.sector]!=null) r+=(a.sectorK||0)*(m.sectorOutputs[a.sector]-50);
+  return +Math.max(-80,Math.min(80,r)).toFixed(2);
+}
+function portfolioAnalytics(m,holdings=portfolioHoldings,inputs=null){
+  const rows=holdings.map((h,i)=>{const w=Math.max(0,+h.weight||0);const ret=assetScenarioReturn(h.symbol,m,inputs);return {...h,index:i,weight:w,ret,contribution:ret*w/100,asset:PORTFOLIO_ASSETS[h.symbol]};});
+  const totalW=rows.reduce((a,r)=>a+r.weight,0);
+  const scale=totalW?100/totalW:0;
+  const scenarioReturn=rows.reduce((a,r)=>a+r.contribution,0)*scale;
+  const baseReturn=rows.reduce((a,r)=>a+(r.asset?.base||0)*r.weight/100,0)*scale;
+  const weightedVol=rows.reduce((a,r)=>a+(r.asset?.vol||0)*r.weight/100,0)*scale;
+  const diversification=.78+Math.min(.16,rows.length*.012);
+  const volProxy=weightedVol*diversification;
+  const stressLoss=Math.min(0,scenarioReturn)*portfolioValue/100;
+  return {rows,totalW,scenarioReturn,baseReturn,volProxy,stressLoss,valueEnd:portfolioValue*(1+scenarioReturn/100)};
+}
+function setPortfolioValue(v){portfolioValue=Math.max(0,+v||0);savePortfolioState();renderPortfolioLab(compute());renderScenarioTreeSummary();}
+function updatePortfolioRow(i,field,v){if(!portfolioHoldings[i])return;if(field==='weight')portfolioHoldings[i].weight=Math.max(0,Math.min(100,+v||0));else if(field==='symbol'&&PORTFOLIO_ASSETS[v])portfolioHoldings[i].symbol=v;savePortfolioState();renderPortfolioLab(compute());renderScenarioTreeSummary();}
+function addPortfolioHolding(){const used=new Set(portfolioHoldings.map(x=>x.symbol));const sym=Object.keys(PORTFOLIO_ASSETS).find(x=>!used.has(x))||'SPY';portfolioHoldings.push({symbol:sym,weight:0});savePortfolioState();renderPortfolioLab(compute());}
+function removePortfolioHolding(i){portfolioHoldings.splice(i,1);savePortfolioState();renderPortfolioLab(compute());renderScenarioTreeSummary();}
+function normalizePortfolio(){const t=portfolioHoldings.reduce((a,h)=>a+(+h.weight||0),0);if(!t)return;portfolioHoldings.forEach(h=>h.weight=+(100*(+h.weight||0)/t).toFixed(2));savePortfolioState();renderPortfolioLab(compute());renderScenarioTreeSummary();}
+function loadPortfolioPreset(kind){
+  const presets={
+    '60_40':[{symbol:'SPY',weight:60},{symbol:'IEF',weight:40}],
+    balanced:[{symbol:'SPY',weight:40},{symbol:'QQQ',weight:10},{symbol:'IWM',weight:10},{symbol:'IEF',weight:20},{symbol:'GLD',weight:10},{symbol:'CASH',weight:10}],
+    growth:[{symbol:'SPY',weight:35},{symbol:'QQQ',weight:25},{symbol:'SOXX',weight:15},{symbol:'IWM',weight:10},{symbol:'GLD',weight:5},{symbol:'CASH',weight:10}],
+    defensive:[{symbol:'SPY',weight:25},{symbol:'XLU',weight:10},{symbol:'IEF',weight:30},{symbol:'TLT',weight:10},{symbol:'GLD',weight:15},{symbol:'CASH',weight:10}]
+  }; portfolioHoldings=JSON.parse(JSON.stringify(presets[kind]||DEFAULT_PORTFOLIO));savePortfolioState();renderPortfolioLab(compute());renderScenarioTreeSummary();
+}
+function portfolioFactorSummary(m){
+  const x=effectiveScenarioInputs(); return [
+    ['Equity regime',m.sp500-100],['GDP gap',m.gdp-(BASELINES.gdp||2.5)],['Inflation gap',m.cpi-(BASELINES.cpi||2.5)],['10yr shift',m.tenyr-(BASELINES.tenyr||4.2)],['Dollar shift',m.dollarAdj-(BASELINES.dollarAdj||104)],['Oil shift',(x.oil||72)-(getSliderDefault('oil')||72)]
+  ];
+}
+function buildPortfolioSection(){return `<div class="section" id="sec-portfolio"><div class="sec-hdr"><div class="sec-title">Portfolio Lab</div><div class="sec-desc">Translate the current macro scenario into transparent, factor-based asset and portfolio stress results. This is a scenario sensitivity engine—not a security price forecast.</div></div><div class="pipeline-strip"><span class="pipeline-step">News</span><span class="pipeline-arrow">→</span><span class="pipeline-step">AI / manual shock</span><span class="pipeline-arrow">→</span><span class="pipeline-step">MACROSCOPE economy</span><span class="pipeline-arrow">→</span><span class="pipeline-step">Portfolio stress</span></div><div class="portfolio-toolbar"><label style="font:10px var(--font-mono);color:var(--muted)">Portfolio value $ <input id="portfolio-value" type="number" step="1000" min="0" value="${portfolioValue}" onchange="setPortfolioValue(this.value)" style="width:130px"></label><button class="btn" onclick="loadPortfolioPreset('60_40')">60/40</button><button class="btn" onclick="loadPortfolioPreset('balanced')">Balanced</button><button class="btn" onclick="loadPortfolioPreset('growth')">Growth</button><button class="btn" onclick="loadPortfolioPreset('defensive')">Defensive</button><button class="btn" onclick="normalizePortfolio()">Normalize 100%</button><button class="btn primary" onclick="addPortfolioHolding()">+ Asset</button></div><div class="v6-kpis" id="portfolio-kpis"></div><div class="portfolio-top"><div class="portfolio-panel"><div class="ai-box-title">Holdings & scenario returns</div><div class="portfolio-table"><div class="portfolio-head"><span>Ticker</span><span>Proxy / factor model</span><span>Weight</span><span>12m stress return</span><span>Contribution</span><span></span></div><div id="portfolio-rows"></div></div></div><div class="portfolio-panel"><div class="ai-box-title">Scenario factor map</div><div class="factor-bars" id="portfolio-factors"></div></div></div><div class="portfolio-note">Method: broad equity proxies inherit the simulator's S&amp;P regime plus transparent sector/rate/oil tilts; bond proxies use approximate duration sensitivity to the modeled 10-year yield; credit adds spread sensitivity; gold responds to inflation, dollar, rates and financial stress. Coefficients are scenario priors, not estimated security-specific betas. No live price target is produced.</div></div>`;}
+function renderPortfolioLab(m){
+  const rowsEl=document.getElementById('portfolio-rows'); if(!rowsEl)return;
+  const a=portfolioAnalytics(m); const k=document.getElementById('portfolio-kpis');
+  if(k) k.innerHTML=[['Scenario return',`${a.scenarioReturn>=0?'+':''}${a.scenarioReturn.toFixed(1)}%`,'12-month stress estimate'],['Scenario P/L',`${a.stressLoss<0?'-':'+'}$${Math.abs(portfolioValue*a.scenarioReturn/100).toLocaleString(undefined,{maximumFractionDigits:0})}`,'On entered portfolio value'],['Baseline return',`${a.baseReturn.toFixed(1)}%`,'Long-run prior, not forecast'],['Volatility proxy',`${a.volProxy.toFixed(1)}%`,'Rough annualized risk'],['Weight total',`${a.totalW.toFixed(1)}%`,Math.abs(a.totalW-100)<.1?'Normalized':'Normalize recommended']].map(([l,v,sub])=>`<div class="v6-kpi"><div class="v6-kpi-lbl">${l}</div><div class="v6-kpi-val">${v}</div><div class="v6-kpi-sub">${sub}</div></div>`).join('');
+  rowsEl.innerHTML=a.rows.map(r=>`<div class="portfolio-row"><select onchange="updatePortfolioRow(${r.index},'symbol',this.value)">${portfolioAssetOptions(r.symbol)}</select><span>${escapeHtml(r.asset?.name||'')}</span><input type="number" min="0" max="100" step="1" value="${r.weight}" onchange="updatePortfolioRow(${r.index},'weight',this.value)"><span class="portfolio-return ${r.ret>=0?'pos':'neg'}">${r.ret>=0?'+':''}${r.ret.toFixed(1)}%</span><span>${r.contribution>=0?'+':''}${r.contribution.toFixed(2)}pp</span><button class="btn" onclick="removePortfolioHolding(${r.index})">×</button></div>`).join('');
+  const f=document.getElementById('portfolio-factors'); if(f){const factors=portfolioFactorSummary(m);const max=Math.max(1,...factors.map(x=>Math.abs(x[1])));f.innerHTML=factors.map(([name,val])=>`<div class="factor-row"><span>${name}</span><div class="factor-track"><div class="factor-fill" style="width:${Math.min(100,Math.abs(val)/max*100)}%"></div></div><span class="factor-val">${val>=0?'+':''}${val.toFixed(2)}</span></div>`).join('');}
+}
+
+// Evaluate a draft shock without permanently mutating scenario state.
+function previewAIShockPortfolioImpact(d){
+  if(!d?.channels?.length)return '';
+  const savedEvents=JSON.parse(JSON.stringify(activeEventIds)); const savedSel=selectedShockId; const tempId='__preview_ai__';
+  const ev=enrichEventDefinition({id:tempId,label:d.label||'Draft',cat:d.category||'Custom',pos:true,shockType:d.shockType,durationMonths:d.durationMonths,peakMonth:d.peakMonth,decayRate:d.decayRate,confidence:d.confidence,channels:d.channels,chips:[]});
+  EVENTS.push(ev); activeEventIds[tempId]={...defaultShockConfig(ev),magnitude:d.magnitude||1};
+  try{const m=compute(),pa=portfolioAnalytics(m);const top=pa.rows.slice().sort((a,b)=>Math.abs(b.contribution)-Math.abs(a.contribution)).slice(0,3);return `Portfolio: ${pa.scenarioReturn>=0?'+':''}${pa.scenarioReturn.toFixed(1)}% on current holdings\nLargest contributions: ${top.map(r=>`${r.symbol} ${r.contribution>=0?'+':''}${r.contribution.toFixed(2)}pp`).join(' · ')}`;}
+  catch(e){return '';}
+  finally{activeEventIds=savedEvents;selectedShockId=savedSel;const i=EVENTS.findIndex(x=>x.id===tempId);if(i>=0)EVENTS.splice(i,1);}
+}
+
+// ── V6 SCENARIO TREE ─────────────────────────────────────────────
+function branchSnapshot(){const m=compute();return {country:currentCountry,horizon:timeHorizon,taylor:taylorRuleOn,officialSyncEnabled,vals:{...vals},activeEventIds:JSON.parse(JSON.stringify(activeEventIds)),shockProjectionMonth,customEvents:serializeCustomEvents(),out:{gdp:m.gdp,cpi:m.cpi,tenyr:m.tenyr,sp500:m.sp500,recessionRisk:m.recessionRisk,fsi:m.fsi,dollarAdj:m.dollarAdj,sectorOutputs:m.sectorOutputs},inputs:effectiveScenarioInputs(),capturedAt:new Date().toISOString()};}
+function addScenarioBranch(){if(scenarioBranches.length>=6){toast('Scenario Tree supports up to 6 branches');return;}const name=document.getElementById('branch-new-name')?.value.trim()||`Branch ${scenarioBranches.length+1}`;const defaultProb=scenarioBranches.length?Math.max(5,Math.round(100/(scenarioBranches.length+1))):100;scenarioBranches.push({id:'br_'+Date.now().toString(36),name,probability:defaultProb,snapshot:branchSnapshot()});localStorage.setItem('macroscope.branches',JSON.stringify(scenarioBranches));renderScenarioTree();}
+function updateBranch(i,field,v){const b=scenarioBranches[i];if(!b)return;if(field==='probability')b.probability=Math.max(0,Math.min(100,+v||0));else if(field==='name')b.name=String(v||'Branch').slice(0,80);localStorage.setItem('macroscope.branches',JSON.stringify(scenarioBranches));renderScenarioTreeSummary();}
+function recaptureBranch(i){if(!scenarioBranches[i])return;scenarioBranches[i].snapshot=branchSnapshot();localStorage.setItem('macroscope.branches',JSON.stringify(scenarioBranches));renderScenarioTree();toast('Branch recaptured from current scenario');}
+function deleteBranch(i){scenarioBranches.splice(i,1);localStorage.setItem('macroscope.branches',JSON.stringify(scenarioBranches));renderScenarioTree();}
+function normalizeBranchProbabilities(){const t=scenarioBranches.reduce((a,b)=>a+(+b.probability||0),0);if(!t)return;scenarioBranches.forEach(b=>b.probability=+(100*(+b.probability||0)/t).toFixed(1));localStorage.setItem('macroscope.branches',JSON.stringify(scenarioBranches));renderScenarioTree();}
+function loadBranch(i){const b=scenarioBranches[i];if(!b?.snapshot)return;const sc=b.snapshot;if(sc.country&&sc.country!==currentCountry){toast('Branch country differs; switch country first, then load');return;}vals={...DEFAULTS,...sc.vals};restoreCustomEvents(sc.customEvents);activeEventIds=JSON.parse(JSON.stringify(sc.activeEventIds||{}));normalizeAllActiveShocks();shockProjectionMonth=Number.isFinite(+sc.shockProjectionMonth)?+sc.shockProjectionMonth:3;taylorRuleOn=!!sc.taylor;selectedShockId=Object.keys(activeEventIds)[0]||null;buildContent();const btn=Array.from(document.querySelectorAll('.nav-item')).find(x=>(x.getAttribute('onclick')||'').includes("'branches'"));showSection('branches',btn||null);syncSliderDomFromVals();render();renderEventLog();toast(`Loaded ${b.name}`);}
+function branchPortfolioAnalytics(branch){const s=branch?.snapshot;if(!s)return null;return portfolioAnalytics(s.out,portfolioHoldings,s.inputs);}
+function scenarioTreeWeighted(){const valid=scenarioBranches.filter(b=>b.snapshot&&(+b.probability||0)>0);const total=valid.reduce((a,b)=>a+(+b.probability||0),0);if(!total)return null;const avg=k=>valid.reduce((a,b)=>a+(+b.probability||0)/total*(+b.snapshot.out[k]||0),0);const pret=valid.reduce((a,b)=>a+(+b.probability||0)/total*(branchPortfolioAnalytics(b)?.scenarioReturn||0),0);return {total,gdp:avg('gdp'),cpi:avg('cpi'),tenyr:avg('tenyr'),sp500:avg('sp500'),recessionRisk:avg('recessionRisk'),portfolioReturn:pret};}
+function buildScenarioTreeSection(){return `<div class="section" id="sec-branches"><div class="sec-hdr"><div class="sec-title">Scenario Tree</div><div class="sec-desc">Capture distinct macro scenarios, assign subjective probabilities, and compute probability-weighted macro and portfolio outcomes. Branches are snapshots, so later slider changes do not silently rewrite them.</div></div><div class="branch-toolbar"><input id="branch-new-name" placeholder="Branch name — e.g. Soft landing"><button class="btn primary" onclick="addScenarioBranch()">Capture current as branch</button><button class="btn" onclick="normalizeBranchProbabilities()">Normalize probabilities</button><span id="branch-prob-total" style="font:10px var(--font-mono);color:var(--muted)"></span></div><div class="branch-grid" id="branch-grid"></div><div class="tree-summary" id="tree-summary"></div><div class="portfolio-note">Probabilities are user judgments, not model-estimated event probabilities. Expected values are useful for comparing scenario sets but can hide tail risk; inspect each branch independently.</div></div>`;}
+function renderScenarioTree(){const grid=document.getElementById('branch-grid');if(!grid)return;grid.innerHTML=scenarioBranches.length?scenarioBranches.map((b,i)=>{const o=b.snapshot?.out||{},pa=branchPortfolioAnalytics(b);return `<div class="branch-card"><input value="${escapeAttr(b.name)}" onchange="updateBranch(${i},'name',this.value)" style="width:100%;background:transparent;border:0;border-bottom:1px solid var(--border);color:var(--text);font:700 13px var(--font-ui);padding:3px 0"><div class="branch-meta">Captured ${b.snapshot?.capturedAt?new Date(b.snapshot.capturedAt).toLocaleString():'—'} · ${escapeHtml(String(b.snapshot?.country||'').toUpperCase())}</div><div class="branch-prob">Probability <input type="number" min="0" max="100" step="1" value="${+b.probability||0}" onchange="updateBranch(${i},'probability',this.value)">%</div><div class="branch-metrics"><div class="branch-metric"><b>${(+o.gdp||0).toFixed(1)}%</b><span>GDP</span></div><div class="branch-metric"><b>${(+o.cpi||0).toFixed(1)}%</b><span>CPI</span></div><div class="branch-metric"><b>${(+o.tenyr||0).toFixed(2)}%</b><span>10yr</span></div><div class="branch-metric"><b>${(+o.sp500||0).toFixed(0)}</b><span>S&amp;P idx</span></div><div class="branch-metric"><b>${pa?`${pa.scenarioReturn>=0?'+':''}${pa.scenarioReturn.toFixed(1)}%`:'—'}</b><span>Portfolio</span></div></div><div class="branch-actions"><button class="btn primary" onclick="loadBranch(${i})">Load</button><button class="btn" onclick="recaptureBranch(${i})">Recapture</button><button class="btn" onclick="deleteBranch(${i})">Delete</button></div></div>`;}).join(''):'<div class="news-empty">No branches yet. Configure a scenario, then capture it here.</div>';renderScenarioTreeSummary();}
+function renderScenarioTreeSummary(){const el=document.getElementById('tree-summary');const totalEl=document.getElementById('branch-prob-total');const w=scenarioTreeWeighted();if(totalEl)totalEl.textContent=`Total probability: ${scenarioBranches.reduce((a,b)=>a+(+b.probability||0),0).toFixed(1)}%`;if(!el)return;if(!w){el.innerHTML='<div class="news-empty">Capture at least one branch with a nonzero probability.</div>';return;}el.innerHTML=`<div class="ai-box-title">Probability-weighted outlook</div><div class="v6-kpis" style="margin-top:9px"><div class="v6-kpi"><div class="v6-kpi-lbl">Expected GDP</div><div class="v6-kpi-val">${w.gdp.toFixed(2)}%</div></div><div class="v6-kpi"><div class="v6-kpi-lbl">Expected CPI</div><div class="v6-kpi-val">${w.cpi.toFixed(2)}%</div></div><div class="v6-kpi"><div class="v6-kpi-lbl">Expected 10yr</div><div class="v6-kpi-val">${w.tenyr.toFixed(2)}%</div></div><div class="v6-kpi"><div class="v6-kpi-lbl">Expected S&amp;P index</div><div class="v6-kpi-val">${w.sp500.toFixed(1)}</div></div><div class="v6-kpi"><div class="v6-kpi-lbl">Expected portfolio</div><div class="v6-kpi-val">${w.portfolioReturn>=0?'+':''}${w.portfolioReturn.toFixed(1)}%</div></div></div>${Math.abs(w.total-100)>.2?`<div class="sec-warn" style="margin-top:8px">Probabilities sum to ${w.total.toFixed(1)}%. Weighted values above normalize them to 100% for calculation.</div>`:''}`;}
+
+// ── V6 ASK MACROSCOPE ────────────────────────────────────────────
+function topModelDrivers(m,n=6){return Object.entries(m.gdpContributions||{}).filter(([k])=>k!=='baseline').sort((a,b)=>Math.abs(b[1])-Math.abs(a[1])).slice(0,n).map(([name,value])=>({name,value:+value.toFixed(3)}));}
+function analystContextPayload(){const m=compute(),pa=portfolioAnalytics(m),tree=scenarioTreeWeighted();return {model:'MACROSCOPE v6.0',country:currentCountry,horizonYears:timeHorizon,projectionMonth:shockProjectionMonth,metrics:{gdp:m.gdp,cpi:m.cpi,unemployment:m.unemp,tenYear:m.tenyr,mortgage:m.mortg,sp500Index:m.sp500,financialStability:m.fsi,recessionRisk:m.recessionRisk,consumerConfidence:m.conf,effectiveDeficit:m.effectiveDeficit},topGdpDrivers:topModelDrivers(m),activeScenarioShocks:(m.shockReport?.eventSummaries||[]).map(x=>({label:x.label,path:+x.path?.toFixed?.(2)||x.path,activeChannels:x.activeChannels})),releaseSignals:(m.calendarShockReport?.activeShocks||[]).slice(0,5).map(x=>({label:x.label,surpriseZ:x.surpriseZ,path:x.path})),portfolio:{value:portfolioValue,scenarioReturn:pa.scenarioReturn,volatilityProxy:pa.volProxy,holdings:pa.rows.map(r=>({symbol:r.symbol,weight:r.weight,scenarioReturn:r.ret,contribution:r.contribution}))},scenarioTree:tree};}
+function buildAnalystSection(){return `<div class="section" id="sec-analyst"><div class="sec-hdr"><div class="sec-title">Ask MACROSCOPE</div><div class="sec-desc">Use an LLM as an explanation layer over the simulator—not as a replacement for the equations. Questions are grounded in the current model state, active shocks, release signals, scenario tree and portfolio.</div></div><div class="analyst-layout"><div class="analyst-box"><div class="ai-box-title">Question</div><textarea id="analyst-prompt" class="analyst-prompt" placeholder="Why is inflation rising in this scenario? Which assumptions are driving the portfolio drawdown? What would have to change to avoid recession without reigniting inflation?"></textarea><div class="quick-prompts"><button class="btn" onclick="setAnalystPrompt('Explain the current macro scenario and identify the three most important drivers.')">Explain scenario</button><button class="btn" onclick="setAnalystPrompt('What is driving inflation, and which changes would reduce it with the least damage to growth?')">Inflation drivers</button><button class="btn" onclick="setAnalystPrompt('Explain the current portfolio risk and identify the holdings most sensitive to this scenario.')">Portfolio risk</button><button class="btn" onclick="setAnalystPrompt('What assumptions could invalidate this outlook? Distinguish model uncertainty from real-world uncertainty.')">Challenge outlook</button></div><input id="analyst-endpoint" class="analyst-endpoint" placeholder="Serverless AI endpoint (same Worker as Shock Studio)" onchange="saveAIEndpoint(this.value)"><div class="analyst-toolbar" style="margin-top:8px"><button class="btn primary" onclick="askMacroscope()">Ask MACROSCOPE</button><button class="btn" onclick="localMacroscopeExplain()">Local model summary</button><span id="analyst-status" class="ai-status">Backend optional</span></div></div><div class="analyst-box"><div class="ai-box-title">Analyst answer</div><div class="analyst-answer" id="analyst-answer">Ask a question, or use Local model summary for an explanation that requires no external LLM.</div></div></div><div class="portfolio-panel" style="margin-top:10px"><div class="ai-box-title">Current context sent to the analyst</div><div id="analyst-snapshot" class="news-meta-line" style="line-height:1.7"></div></div><div class="portfolio-note">The analyst receives simulator outputs and assumptions, not privileged market information. It should describe model logic, uncertainty and scenario implications rather than present generated statements as observed facts.</div></div>`;}
+function setAnalystPrompt(t){const el=document.getElementById('analyst-prompt');if(el){el.value=t;el.focus();}}
+function loadAIEndpoint(){const v=localStorage.getItem('macroscope.ai.endpoint')||'';const a=document.getElementById('ai-shock-endpoint');if(a&&!a.value)a.value=v;const b=document.getElementById('analyst-endpoint');if(b&&!b.value)b.value=v;}
+function renderAnalystSnapshot(m){const el=document.getElementById('analyst-snapshot');if(!el)return;const pa=portfolioAnalytics(m),drivers=topModelDrivers(m,4);el.innerHTML=`GDP <b>${m.gdp.toFixed(1)}%</b> · CPI <b>${m.cpi.toFixed(1)}%</b> · 10yr <b>${m.tenyr.toFixed(2)}%</b> · Recession score <b>${m.recessionRisk.toFixed(0)}</b> · Portfolio <b>${pa.scenarioReturn>=0?'+':''}${pa.scenarioReturn.toFixed(1)}%</b><br>Top GDP drivers: ${drivers.map(x=>`${escapeHtml(x.name)} ${x.value>=0?'+':''}${x.value.toFixed(2)}pp`).join(' · ')}`;}
+function localMacroscopeText(){const m=compute(),pa=portfolioAnalytics(m),d=topModelDrivers(m,5),shockCount=Object.keys(activeEventIds).length,tree=scenarioTreeWeighted();const direction=m.gdp<0?'recessionary':m.gdp<1.5?'weak-growth':m.gdp>3.5?'high-growth':'moderate-growth';return `MACROSCOPE currently describes a ${direction} regime: GDP ${m.gdp.toFixed(1)}%, CPI ${m.cpi.toFixed(1)}%, 10-year Treasury ${m.tenyr.toFixed(2)}%, and a recession-risk score of ${m.recessionRisk.toFixed(0)}/100.\n\nThe largest GDP contributions are ${d.map(x=>`${x.name} (${x.value>=0?'+':''}${x.value.toFixed(2)}pp)`).join(', ')}. ${shockCount?`${shockCount} user scenario shock${shockCount===1?' is':'s are'} active at month ${shockProjectionMonth}.`:'No user-created scenario shock is active.'}\n\nThe current portfolio stress result is ${pa.scenarioReturn>=0?'+':''}${pa.scenarioReturn.toFixed(1)}% on a $${portfolioValue.toLocaleString()} portfolio, with an approximate volatility proxy of ${pa.volProxy.toFixed(1)}%. The largest portfolio contributions are ${pa.rows.slice().sort((a,b)=>Math.abs(b.contribution)-Math.abs(a.contribution)).slice(0,3).map(r=>`${r.symbol} ${r.contribution>=0?'+':''}${r.contribution.toFixed(2)}pp`).join(', ')}.${tree?`\n\nThe probability-weighted scenario tree implies GDP ${tree.gdp.toFixed(2)}%, CPI ${tree.cpi.toFixed(2)}%, and portfolio return ${tree.portfolioReturn>=0?'+':''}${tree.portfolioReturn.toFixed(1)}%.`:''}\n\nThese are model outputs based on transparent scenario priors; they are not forecasts with statistically estimated confidence intervals.`;}
+function localMacroscopeExplain(){const out=document.getElementById('analyst-answer');if(out)out.textContent=localMacroscopeText();const st=document.getElementById('analyst-status');if(st)st.textContent='LOCAL MODEL';}
+async function askMacroscope(){const prompt=document.getElementById('analyst-prompt')?.value.trim();const endpoint=(document.getElementById('analyst-endpoint')?.value||localStorage.getItem('macroscope.ai.endpoint')||'').trim();const out=document.getElementById('analyst-answer'),st=document.getElementById('analyst-status');if(!prompt){toast('Ask a question first');return;}if(!endpoint){localMacroscopeExplain();toast('No endpoint configured · showing local model summary');return;}saveAIEndpoint(endpoint);if(st)st.textContent='THINKING…';if(out)out.textContent='Analyzing current simulator state…';try{const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'analyst',prompt,context:analystContextPayload()})});if(!r.ok)throw new Error(`AI endpoint HTTP ${r.status}`);const data=await r.json();const answer=String(data.answer||data.text||'').trim();if(!answer)throw new Error('Empty analyst response');analystHistory.push({prompt,answer,at:new Date().toISOString()});if(out)out.textContent=answer;if(st)st.textContent='GROUNDED IN MODEL STATE';}catch(e){if(out)out.textContent=`Analyst request failed: ${e.message||e}\n\n${localMacroscopeText()}`;if(st)st.textContent='LOCAL FALLBACK';}}
 
 // ── EVENTS & STRUCTURED SHOCKS ───────────────────────────────────
 let customEventCount = 0;
@@ -3641,7 +4020,7 @@ function renderPolChart(m) {
 // ── EXPORT / RESET ───────────────────────────────────────────────
 function exportJSON() {
   const m    = compute();
-  const data = { metadata:{ name:document.getElementById('sc-name').value, timestamp:new Date().toISOString(), version:'MACROSCOPE v4.4', shockProjectionMonth, officialSyncEnabled, officialDataGeneratedAt:officialData?.generatedAt||null, surpriseEngineGeneratedAt:surpriseEngine?.generatedAt||null, activeReleaseSignals:compute().calendarShockReport?.activeShocks?.length||0 }, inputs:vals, activeShocks:JSON.parse(JSON.stringify(activeEventIds)), customShockDefinitions:serializeCustomEvents(), shockAttribution:m.shockReport, releaseShockAttribution:m.calendarShockReport, outputs:{ gdp:m.gdp, cpi:m.cpi, tfp:m.tfp, tenyr:m.tenyr, twoyr:m.twoyr, thirtyr:m.thirtyr, mortgage:m.mortg, yieldSpread:m.yldSprd, housingAffordability:m.housingAff, sp500:m.sp500, consumerConfidence:m.conf, deficitPctGDP:m.defAdj, dollar:m.dollarAdj } };
+  const data = { metadata:{ name:document.getElementById('sc-name').value, timestamp:new Date().toISOString(), version:'MACROSCOPE v6.0', shockProjectionMonth, officialSyncEnabled, officialDataGeneratedAt:officialData?.generatedAt||null, surpriseEngineGeneratedAt:surpriseEngine?.generatedAt||null, activeReleaseSignals:compute().calendarShockReport?.activeShocks?.length||0 }, inputs:vals, activeShocks:JSON.parse(JSON.stringify(activeEventIds)), customShockDefinitions:serializeCustomEvents(), shockAttribution:m.shockReport, releaseShockAttribution:m.calendarShockReport, outputs:{ gdp:m.gdp, cpi:m.cpi, tfp:m.tfp, tenyr:m.tenyr, twoyr:m.twoyr, thirtyr:m.thirtyr, mortgage:m.mortg, yieldSpread:m.yldSprd, housingAffordability:m.housingAff, sp500:m.sp500, consumerConfidence:m.conf, deficitPctGDP:m.defAdj, dollar:m.dollarAdj } };
   const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
   const a    = document.createElement('a');
   a.href     = URL.createObjectURL(blob);
@@ -4105,6 +4484,8 @@ function encodeState() {
   const ev = Object.fromEntries(Object.entries(activeEventIds).filter(([id]) => !id.startsWith('custom_')).map(([id,cfg]) => [id, normalizeActiveShockConfig(id,cfg)]));
   if (Object.keys(ev).length) o.e = ev;
   if (shockProjectionMonth !== 3) o.m = shockProjectionMonth;
+  if (portfolioHoldings.length) o.p = portfolioHoldings.map(h=>[h.symbol,+h.weight||0]);
+  if (portfolioValue !== 100000) o.pv = portfolioValue;
   const d = {};
   for (const id in vals) {
     const def = getSliderDefault(id);
@@ -4169,6 +4550,9 @@ function applyStateFromURL() {
   else if (o.e && typeof o.e === 'object') for (const [id,cfg] of Object.entries(o.e)) { if (findShock(id)) activeEventIds[id] = normalizeActiveShockConfig(id,cfg); }
   shockProjectionMonth = Number.isFinite(+o.m) ? Math.max(0,Math.min(120,+o.m)) : 3;
   selectedShockId = Object.keys(activeEventIds)[0] || null;
+  if (Array.isArray(o.p)) portfolioHoldings=o.p.filter(x=>Array.isArray(x)&&PORTFOLIO_ASSETS[x[0]]).map(x=>({symbol:x[0],weight:+x[1]||0}));
+  if (Number.isFinite(+o.pv)) portfolioValue=Math.max(0,+o.pv);
+  savePortfolioState();
   pendingSharedSliderOverrides = o.v && typeof o.v === 'object' ? {...o.v} : {};
   if (o.v) for (const id in o.v) { if (vals[id] !== undefined) vals[id] = o.v[id]; }
   return true;
