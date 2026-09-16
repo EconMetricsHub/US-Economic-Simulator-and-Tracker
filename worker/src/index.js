@@ -30,6 +30,84 @@ function safeString(v, max = 1200) {
   return String(v ?? '').slice(0, max);
 }
 
+function parseModelJson(text) {
+  let raw = String(text ?? '').trim();
+  if (!raw) throw new Error('Empty model response');
+  raw = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+  try { return JSON.parse(raw); } catch (_) {}
+  const a = raw.indexOf('{');
+  const b = raw.lastIndexOf('}');
+  if (a >= 0 && b > a) {
+    try { return JSON.parse(raw.slice(a, b + 1)); } catch (_) {}
+  }
+  throw new Error('Model returned invalid JSON');
+}
+
+function boolish(v, fallback = false) {
+  if (typeof v === 'boolean') return v;
+  if (typeof v === 'number') return v !== 0;
+  if (typeof v === 'string') {
+    const x = v.trim().toLowerCase();
+    if (['true','yes','on','1'].includes(x)) return true;
+    if (['false','no','off','0'].includes(x)) return false;
+  }
+  return fallback;
+}
+
+function normalizeScenarioDraft(input, context) {
+  let raw = input && typeof input === 'object' ? input : {};
+  if (raw.command && typeof raw.command === 'object') raw = raw.command;
+  else if (raw.scenario && typeof raw.scenario === 'object') raw = raw.scenario;
+  else if (raw.result && typeof raw.result === 'object') raw = raw.result;
+
+  const settingsRaw = raw.settings && typeof raw.settings === 'object' ? raw.settings : {};
+  const trRaw = settingsRaw.taylorRule || settingsRaw.taylor_rule || raw.taylorRule || raw.taylor_rule || {};
+  const shockRaw = raw.shock && typeof raw.shock === 'object' ? raw.shock : {};
+  const rawChanges = raw.sliderChanges || raw.slider_changes || raw.changes || [];
+  const rawChannels = shockRaw.channels || shockRaw.shockChannels || shockRaw.shock_channels || [];
+
+  return {
+    registryVersion: raw.registryVersion ?? raw.registry_version ?? context?.registryVersion ?? 'unknown',
+    scenarioName: raw.scenarioName ?? raw.scenario_name ?? raw.name ?? 'AI counterfactual',
+    region: raw.region ?? context?.country ?? 'us',
+    confidence: raw.confidence,
+    rationale: raw.rationale ?? raw.summary ?? '',
+    assumptions: Array.isArray(raw.assumptions) ? raw.assumptions : [],
+    sliderChanges: (Array.isArray(rawChanges) ? rawChanges : []).map(c => ({
+      id: c?.id ?? c?.sliderId ?? c?.slider_id ?? '',
+      operation: c?.operation ?? c?.op ?? 'set',
+      value: c?.value ?? c?.delta ?? c?.amount,
+      reason: c?.reason ?? c?.rationale ?? ''
+    })),
+    settings: {
+      taylorRule: {
+        apply: boolish(trRaw?.apply, false),
+        enabled: boolish(trRaw?.enabled, boolish(context?.taylorRuleEnabled, false)),
+        reason: trRaw?.reason ?? trRaw?.rationale ?? ''
+      }
+    },
+    shock: {
+      enabled: boolish(shockRaw.enabled, Array.isArray(rawChannels) && rawChannels.length > 0),
+      label: shockRaw.label ?? shockRaw.name ?? raw.scenarioName ?? raw.scenario_name ?? 'AI scenario shock',
+      category: shockRaw.category ?? 'Custom',
+      shockType: shockRaw.shockType ?? shockRaw.shock_type ?? shockRaw.type ?? 'persistent',
+      durationMonths: shockRaw.durationMonths ?? shockRaw.duration_months,
+      peakMonth: shockRaw.peakMonth ?? shockRaw.peak_month,
+      decayRate: shockRaw.decayRate ?? shockRaw.decay_rate,
+      confidence: shockRaw.confidence ?? raw.confidence,
+      magnitude: shockRaw.magnitude,
+      rationale: shockRaw.rationale ?? shockRaw.reason ?? '',
+      assumptions: Array.isArray(shockRaw.assumptions) ? shockRaw.assumptions : [],
+      channels: (Array.isArray(rawChannels) ? rawChannels : []).map(c => ({
+        target: c?.target ?? c?.id ?? c?.channel ?? '',
+        effect: c?.effect ?? c?.value ?? c?.impact,
+        lagMonths: c?.lagMonths ?? c?.lag_months ?? c?.lag ?? 0,
+        peakMonth: c?.peakMonth ?? c?.peak_month ?? c?.peak ?? 1
+      }))
+    }
+  };
+}
+
 function registryFromContext(context) {
   const sliders = Array.isArray(context?.sliderRegistry) ? context.sliderRegistry : [];
   const shocks = Array.isArray(context?.shockTargets) ? context.shockTargets : [];
@@ -232,6 +310,25 @@ async function callProvider(env, body) {
   const raw = data?.choices?.[0]?.message?.content;
   if (!raw) throw new Error('Empty provider response');
   return String(raw);
+}
+
+async function callScenarioProvider(env, body) {
+  try {
+    return await callProvider(env, body);
+  } catch (e) {
+    const msg = String(e?.message || e);
+    if (!/Provider 400:|response_format|json/i.test(msg)) throw e;
+    const fallback = {...body};
+    delete fallback.response_format;
+    fallback.messages = [...(body.messages || [])];
+    if (fallback.messages[0]?.role === 'system') {
+      fallback.messages[0] = {
+        ...fallback.messages[0],
+        content: fallback.messages[0].content + '\n\nFallback mode: return exactly one valid JSON object and no markdown or commentary.'
+      };
+    }
+    return await callProvider(env, fallback);
+  }
 }
 
 
@@ -483,29 +580,21 @@ export default {
       }
 
       const registry = registryFromContext(context);
-      const sliderIds = [...registry.sliderMap.keys()];
-      const shockIds = [...registry.shockMap.keys()];
-      const schema = scenarioSchema(sliderIds, shockIds);
-      const system = `You are the scenario-construction layer for MACROSCOPE. Translate the user's economic counterfactual into a cautious structured command. You do NOT execute code, manipulate the interface, or invent new controls. Use only slider IDs and shock-target IDs supplied in the compact simulator context. Unknown IDs are rejected server-side.\n\nUse sliderChanges for persistent state or policy changes that correspond to existing controls. For temporary, lagged, or explicitly time-bounded macro effects, use the structured shock object. A scenario may use both. If the user asks to enable or disable the Taylor Rule, set settings.taylorRule.apply=true and choose enabled accordingly. Otherwise set apply=false and preserve the current Taylor Rule state in enabled. Do not change the region; return the current context country.\n\nOperations: set means the requested absolute level; increase/decrease means a positive delta from the current value. Respect units, ranges, and economic meaning from the registry. Do not force every plausible channel into the scenario. Prefer the smallest defensible set of controls, generally 1-8 slider changes and no more than 5 shock channels. Do not claim causal certainty. Preserve ambiguity as assumptions and lower confidence when the prompt is underspecified.\n\nFor financial or economic news, treat the text as a scenario input rather than verified truth unless the context marks it as observed data.`;
+      const system = `You are the scenario-construction layer for MACROSCOPE. Translate the user's economic counterfactual into a cautious JSON command. You do NOT execute code, manipulate the interface, or invent new controls. Use only slider IDs and shock-target IDs supplied in the compact simulator context. Unknown IDs are rejected server-side.\n\nUse sliderChanges for persistent state or policy changes that correspond to existing controls. For temporary, lagged, or explicitly time-bounded macro effects, use the structured shock object. A scenario may use both. If the user asks to enable or disable the Taylor Rule, set settings.taylorRule.apply=true and choose enabled accordingly. Otherwise set apply=false and preserve the current Taylor Rule state in enabled. Do not change the region; return the current context country.\n\nOperations: set means the requested absolute level; increase/decrease means a positive delta from the current value. Respect units, ranges, and economic meaning from the registry. Do not force every plausible channel into the scenario. Prefer the smallest defensible set of controls, generally 1-8 slider changes and no more than 5 shock channels. Do not claim causal certainty. Preserve ambiguity as assumptions and lower confidence when the prompt is underspecified.\n\nReturn exactly ONE JSON object and no markdown. Use this shape: {\"scenarioName\":\"...\",\"region\":\"us\",\"confidence\":0.6,\"rationale\":\"...\",\"assumptions\":[],\"sliderChanges\":[{\"id\":\"...\",\"operation\":\"set|increase|decrease\",\"value\":0,\"reason\":\"...\"}],\"settings\":{\"taylorRule\":{\"apply\":false,\"enabled\":false,\"reason\":\"...\"}},\"shock\":{\"enabled\":true,\"label\":\"...\",\"category\":\"Custom\",\"shockType\":\"temporary|persistent|structural\",\"durationMonths\":12,\"peakMonth\":2,\"decayRate\":0.08,\"confidence\":0.6,\"magnitude\":1,\"rationale\":\"...\",\"assumptions\":[],\"channels\":[{\"target\":\"...\",\"effect\":0,\"lagMonths\":0,\"peakMonth\":2}]}}. The server will normalize minor field-shape mistakes and independently validate every ID, range, operation, and shock target.\n\nFor financial or economic news, treat the text as a scenario input rather than verified truth unless the context marks it as observed data.`;
       const body = {
         model: env.LLM_MODEL || 'openai/gpt-oss-20b',
         messages: [
           {role:'system', content:system},
           {role:'user', content:`SIMULATOR CONTEXT:\n${JSON.stringify(context || {})}\n\nCOUNTERFACTUAL OR NEWS INPUT:\n${text}`}
         ],
-        temperature: 0.2,
-        max_completion_tokens: 1000,
-        response_format: {
-          type: 'json_schema',
-          json_schema: {
-            name: 'macroscope_scenario_command',
-            strict: true,
-            schema
-          }
-        }
+        temperature: 0.15,
+        max_completion_tokens: 1200,
+        response_format: {type:'json_object'}
       };
-      const raw = await callProvider(env, body);
-      const command = validateScenario(JSON.parse(raw), context, registry);
+      const raw = await callScenarioProvider(env, body);
+      const parsed = parseModelJson(raw);
+      const normalized = normalizeScenarioDraft(parsed, context);
+      const command = validateScenario(normalized, context, registry);
       return new Response(JSON.stringify({command}), {headers:{...h,'Content-Type':'application/json'}});
     } catch (e) {
       return new Response(JSON.stringify({error:String(e?.message || e)}), {status:500, headers:{...h,'Content-Type':'application/json'}});

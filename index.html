@@ -719,7 +719,7 @@ kbd{font-family:var(--font-mono);font-size:10.5px;background:var(--surface3);bor
 <div id="boot-screen" role="status" aria-live="polite" aria-label="MACROSCOPE initialization">
   <div class="boot-shell">
     <div class="boot-brand">MACRO<span>SCOPE</span></div>
-    <div class="boot-build">U.S. ECONOMIC RESEARCH TERMINAL // V7.3</div>
+    <div class="boot-build">U.S. ECONOMIC RESEARCH TERMINAL // V7.3.1</div>
     <div class="boot-log" id="boot-log"></div>
     <div class="boot-ready" id="boot-ready" style="display:none">SYSTEM READY <span class="boot-cursor"></span></div>
     <div class="boot-skip">CLICK OR PRESS ANY KEY TO CONTINUE</div>
@@ -761,7 +761,7 @@ kbd{font-family:var(--font-mono);font-size:10.5px;background:var(--surface3);bor
   </div>
 
   <div id="system-strip">
-    <div><span class="sys-dot live"></span><b>MODEL</b> v7.3</div>
+    <div><span class="sys-dot live"></span><b>MODEL</b> v7.3.1</div>
     <div><span class="sys-dot live"></span><b>AI BRIDGE</b> READY</div>
     <div id="sys-data"><span class="sys-dot"></span><b>DATA</b> CHECKING</div>
     <div class="sys-spacer"></div>
@@ -2869,7 +2869,7 @@ function buildContent() {
   let html = `<div class="section active" id="sec-overview">
     <div class="ov-shell">
       <div class="ov-statusbar">
-        <div class="ov-status-left"><span class="ov-pill live">LIVE BASELINE</span><span class="ov-pill">MODEL v7.3</span><span class="ov-pill">${(COUNTRY_CONFIGS[currentCountry]||COUNTRY_CONFIGS.us).name}</span></div>
+        <div class="ov-status-left"><span class="ov-pill live">LIVE BASELINE</span><span class="ov-pill">MODEL v7.3.1</span><span class="ov-pill">${(COUNTRY_CONFIGS[currentCountry]||COUNTRY_CONFIGS.us).name}</span></div>
         <div class="ov-status-right"><span class="ov-pill" id="ov-data-status">CALENDAR PENDING</span><span class="ov-pill" id="ov-horizon-status">${timeHorizon}YR HORIZON</span></div>
       </div>
       <div class="ov-regime neutral" id="ov-regime"></div>
@@ -3262,7 +3262,7 @@ function buildEventsSection() {
             <button class="btn" onclick="clearAIScenarioDraft()">Clear</button>
             <span class="ai-status" id="ai-scenario-status">LEAN CONTEXT READY</span>
           </div>
-          <div class="ai-context-meter"><span>LEAN SCENARIO PAYLOAD</span><b id="ai-context-meter">Prompt-aware registry · target &lt; 6.8K tokens</b></div>
+          <div class="ai-context-meter"><span>LEAN SCENARIO PAYLOAD</span><b id="ai-context-meter">Lean registry · JSON object mode · server-validated</b></div>
           <div class="ai-note">The LLM cannot touch the interface or execute code. It can only propose IDs from the local slider/shock registry. MACROSCOPE validates the command, previews it, and waits for you to run it. The same Worker then explains the simulator's own outputs.</div>
         </div>
         <div class="ai-box">
@@ -3644,7 +3644,7 @@ function updateAIContextMeter(){
   const el=document.getElementById('ai-context-meter'),ta=document.getElementById('ai-scenario-prompt');
   if(!el||!ta)return;
   const promptTokens=Math.ceil((ta.value||'').length/4);
-  el.textContent=`Prompt ~${promptTokens.toLocaleString()} tokens · registry is filtered at send time`;
+  el.textContent=`Prompt ~${promptTokens.toLocaleString()} tokens · lean registry · server-validated JSON`;
 }
 
 function clearAIScenarioDraft() {
@@ -3703,7 +3703,7 @@ async function runAIScenarioDraft() {
   if(st)st.textContent='SCENARIO RUN · EXPLAINING…';
   if(!endpoint){if(st)st.textContent='SCENARIO RUN';return;}
   try{
-    const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'analyst',prompt:'Explain the baseline-to-counterfactual result. Identify the strongest causal channels, countervailing forces, and assumptions. Do not introduce facts that are not in the supplied context.',context:{model:'MACROSCOPE v7.2 counterfactual',country:currentCountry,evaluationMonth:shockProjectionMonth,command,before,after,delta:run.delta,currentState:analystContextPayload()}})});
+    const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'analyst',prompt:'Explain the baseline-to-counterfactual result. Identify the strongest causal channels, countervailing forces, and assumptions. Do not introduce facts that are not in the supplied context.',context:{model:'MACROSCOPE v7.3.1 counterfactual',country:currentCountry,evaluationMonth:shockProjectionMonth,command,before,after,delta:run.delta,currentState:analystContextPayload()}})});
     const data=await r.json().catch(()=>({})); if(!r.ok)throw new Error(data.error||`AI endpoint HTTP ${r.status}`);
     const answer=String(data.answer||'').trim(); if(!answer)throw new Error('Empty analyst response');
     if(out)out.textContent=`SCENARIO EXECUTED\n${formatAIScenarioCommand(command,{before,after,delta:run.delta})}\n\nAI EXPLANATION\n${answer}`;
@@ -3812,7 +3812,7 @@ function renderScenarioTreeSummary(){const el=document.getElementById('tree-summ
 
 // ── V6 ASK MACROSCOPE ────────────────────────────────────────────
 function topModelDrivers(m,n=6){return Object.entries(m.gdpContributions||{}).filter(([k])=>k!=='baseline').sort((a,b)=>Math.abs(b[1])-Math.abs(a[1])).slice(0,n).map(([name,value])=>({name,value:+value.toFixed(3)}));}
-function analystContextPayload(){const m=compute(),pa=portfolioAnalytics(m),tree=scenarioTreeWeighted();return {model:'MACROSCOPE v7.3',country:currentCountry,horizonYears:timeHorizon,projectionMonth:shockProjectionMonth,metrics:{gdp:m.gdp,cpi:m.cpi,unemployment:m.unemp,tenYear:m.tenyr,mortgage:m.mortg,sp500Index:m.sp500,financialStability:m.fsi,recessionRisk:m.recessionRisk,consumerConfidence:m.conf,effectiveDeficit:m.effectiveDeficit},topGdpDrivers:topModelDrivers(m),activeScenarioShocks:(m.shockReport?.eventSummaries||[]).map(x=>({label:x.label,path:+x.path?.toFixed?.(2)||x.path,activeChannels:x.activeChannels})),releaseSignals:(m.calendarShockReport?.activeShocks||[]).slice(0,5).map(x=>({label:x.label,surpriseZ:x.surpriseZ,path:x.path})),portfolio:{value:portfolioValue,scenarioReturn:pa.scenarioReturn,volatilityProxy:pa.volProxy,holdings:pa.rows.map(r=>({symbol:r.symbol,weight:r.weight,scenarioReturn:r.ret,contribution:r.contribution}))},scenarioTree:tree};}
+function analystContextPayload(){const m=compute(),pa=portfolioAnalytics(m),tree=scenarioTreeWeighted();return {model:'MACROSCOPE v7.3.1',country:currentCountry,horizonYears:timeHorizon,projectionMonth:shockProjectionMonth,metrics:{gdp:m.gdp,cpi:m.cpi,unemployment:m.unemp,tenYear:m.tenyr,mortgage:m.mortg,sp500Index:m.sp500,financialStability:m.fsi,recessionRisk:m.recessionRisk,consumerConfidence:m.conf,effectiveDeficit:m.effectiveDeficit},topGdpDrivers:topModelDrivers(m),activeScenarioShocks:(m.shockReport?.eventSummaries||[]).map(x=>({label:x.label,path:+x.path?.toFixed?.(2)||x.path,activeChannels:x.activeChannels})),releaseSignals:(m.calendarShockReport?.activeShocks||[]).slice(0,5).map(x=>({label:x.label,surpriseZ:x.surpriseZ,path:x.path})),portfolio:{value:portfolioValue,scenarioReturn:pa.scenarioReturn,volatilityProxy:pa.volProxy,holdings:pa.rows.map(r=>({symbol:r.symbol,weight:r.weight,scenarioReturn:r.ret,contribution:r.contribution}))},scenarioTree:tree};}
 function buildAnalystSection(){return `<div class="section" id="sec-analyst"><div class="sec-hdr"><div class="sec-title">Ask MACROSCOPE</div><div class="sec-desc">Use one prompt for model explanation or sourced data research. Requests for current/latest official observations are automatically routed to Data Copilot so the LLM never fabricates live values.</div></div><div class="analyst-layout"><div class="analyst-box"><div class="ai-box-title">Question</div><textarea id="analyst-prompt" class="analyst-prompt" placeholder="Explain the current model—or ask for the latest official CPI, labor, rates, housing, energy or GDP data."></textarea><div class="quick-prompts"><button class="btn" onclick="setAnalystPrompt('Explain the current macro scenario and identify the three most important drivers.')">Explain scenario</button><button class="btn" onclick="setAnalystPrompt('What is driving inflation, and which changes would reduce it with the least damage to growth?')">Inflation drivers</button><button class="btn" onclick="setAnalystPrompt('Bring MACROSCOPE current using the latest official U.S. macro data, cite every source and date, compare the observations with the model, and prepare updates for my approval.')">Update current data</button><button class="btn" onclick="setAnalystPrompt('Explain the current portfolio risk and identify the holdings most sensitive to this scenario.')">Portfolio risk</button><button class="btn" onclick="setAnalystPrompt('What assumptions could invalidate this outlook? Distinguish model uncertainty from real-world uncertainty.')">Challenge outlook</button></div><div class="ai-route-strip"><span><b>EXPLAIN</b> model state</span><span>•</span><span><b>UPDATE DATA</b> official FRED-backed observations</span><span>•</span><span><b>SCENARIO</b> use AI Counterfactual Studio</span></div><input id="analyst-endpoint" class="analyst-endpoint" placeholder="Serverless AI endpoint (same Worker as Shock Studio)" onchange="saveAIEndpoint(this.value)"><div class="analyst-toolbar" style="margin-top:8px"><button class="btn primary" onclick="askMacroscope()">Ask MACROSCOPE</button><button class="btn" onclick="localMacroscopeExplain()">Local model summary</button><span id="analyst-status" class="ai-status">AUTO ROUTER READY</span></div></div><div class="analyst-box"><div class="ai-box-title">Analyst answer</div><div class="analyst-answer" id="analyst-answer">Ask a model question or request current official data. Data-update requests will open a reviewable sourced update table before anything changes.</div></div></div><div class="portfolio-panel" style="margin-top:10px"><div class="ai-box-title">Current context sent to the analyst</div><div id="analyst-snapshot" class="news-meta-line" style="line-height:1.7"></div></div><div class="portfolio-note">Provenance rule: official observations are fetched by the Worker from approved FRED series; the LLM may select series and explain results, but it cannot supply the factual observations itself. Scenario assumptions and user overrides remain separate.</div></div>`;}
 function setAnalystPrompt(t){const el=document.getElementById('analyst-prompt');if(el){el.value=t;el.focus();}}
 function loadAIEndpoint(){const v=normalizeAIEndpoint(localStorage.getItem('macroscope.ai.endpoint')||DEFAULT_AI_ENDPOINT||'');saveAIEndpoint(v);const a=document.getElementById('ai-scenario-endpoint');if(a&&!a.value)a.value=v;const b=document.getElementById('analyst-endpoint');if(b&&!b.value)b.value=v;const c=document.getElementById('data-copilot-endpoint');if(c&&!c.value)c.value=v;}
@@ -3875,7 +3875,7 @@ function dataCopilotContext(){
   const m=compute();
   return {
     country:currentCountry,
-    model:'MACROSCOPE v7.3',
+    model:'MACROSCOPE v7.3.1',
     currentInputs:{...vals},
     currentOutputs:{gdp:m.gdp,cpi:m.cpi,twoyr:m.twoyr,tenyr:m.tenyr,mortg:m.mortg,sp500:m.sp500,recessionRisk:m.recessionRisk},
     officialSyncEnabled,
@@ -3951,7 +3951,7 @@ async function requestDataCopilotUpdate(promptOverride=''){
   const promptBox=document.getElementById('data-copilot-prompt');if(promptBox&&promptBox.value!==prompt)promptBox.value=prompt;
   const endpoint=normalizeAIEndpoint(document.getElementById('data-copilot-endpoint')?.value||localStorage.getItem('macroscope.ai.endpoint')||DEFAULT_AI_ENDPOINT||'');
   const st=document.getElementById('data-copilot-status'),box=document.getElementById('data-copilot-results');
-  if(currentCountry!=='us'){toast('Data Copilot v7.3 currently maps official U.S. series only');return;}
+  if(currentCountry!=='us'){toast('Data Copilot v7.3.1 currently maps official U.S. series only');return;}
   if(!endpoint){toast('Configure the Cloudflare Worker endpoint');return;}
   saveAIEndpoint(endpoint);startDataResearchProgress();
   try{
@@ -4530,7 +4530,7 @@ function renderPolChart(m) {
 // ── EXPORT / RESET ───────────────────────────────────────────────
 function exportJSON() {
   const m    = compute();
-  const data = { metadata:{ name:document.getElementById('sc-name').value, timestamp:new Date().toISOString(), version:'MACROSCOPE v7.2', shockProjectionMonth, officialSyncEnabled, officialDataGeneratedAt:officialData?.generatedAt||null, surpriseEngineGeneratedAt:surpriseEngine?.generatedAt||null, activeReleaseSignals:compute().calendarShockReport?.activeShocks?.length||0 }, inputs:vals, activeShocks:JSON.parse(JSON.stringify(activeEventIds)), customShockDefinitions:serializeCustomEvents(), shockAttribution:m.shockReport, releaseShockAttribution:m.calendarShockReport, outputs:{ gdp:m.gdp, cpi:m.cpi, tfp:m.tfp, tenyr:m.tenyr, twoyr:m.twoyr, thirtyr:m.thirtyr, mortgage:m.mortg, yieldSpread:m.yldSprd, housingAffordability:m.housingAff, sp500:m.sp500, consumerConfidence:m.conf, deficitPctGDP:m.defAdj, dollar:m.dollarAdj } };
+  const data = { metadata:{ name:document.getElementById('sc-name').value, timestamp:new Date().toISOString(), version:'MACROSCOPE v7.3.1', shockProjectionMonth, officialSyncEnabled, officialDataGeneratedAt:officialData?.generatedAt||null, surpriseEngineGeneratedAt:surpriseEngine?.generatedAt||null, activeReleaseSignals:compute().calendarShockReport?.activeShocks?.length||0 }, inputs:vals, activeShocks:JSON.parse(JSON.stringify(activeEventIds)), customShockDefinitions:serializeCustomEvents(), shockAttribution:m.shockReport, releaseShockAttribution:m.calendarShockReport, outputs:{ gdp:m.gdp, cpi:m.cpi, tfp:m.tfp, tenyr:m.tenyr, twoyr:m.twoyr, thirtyr:m.thirtyr, mortgage:m.mortg, yieldSpread:m.yldSprd, housingAffordability:m.housingAff, sp500:m.sp500, consumerConfidence:m.conf, deficitPctGDP:m.defAdj, dollar:m.dollarAdj } };
   const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
   const a    = document.createElement('a');
   a.href     = URL.createObjectURL(blob);

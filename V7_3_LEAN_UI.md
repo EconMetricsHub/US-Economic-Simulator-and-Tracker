@@ -1,4 +1,4 @@
-# MACROSCOPE v7.3 — Lean Scenario Context + Sleek Research Terminal
+# MACROSCOPE v7.3.1 — Lean Scenario Context + Sleek Research Terminal
 
 This build combines two upgrades:
 
@@ -17,4 +17,4 @@ Cloudflare secrets (`LLM_API_KEY`, `FRED_API_KEY`) remain stored server-side and
 
 ## Rate-limit note
 
-Groq's TPM window resets with time, but a single request larger than the account's TPM allowance will still fail after waiting. v7.3 reduces the scenario request itself so detailed counterfactual prompts fit much more comfortably.
+Groq's TPM window resets with time, but a single request larger than the account's TPM allowance will still fail after waiting. v7.3.1 reduces the scenario request itself so detailed counterfactual prompts fit much more comfortably.
