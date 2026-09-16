@@ -12,6 +12,11 @@ It combines a large structural scenario model with regularly refreshed economic 
 
 
 
+
+## v8.0 compact terminal UI
+
+The v8.0 shell consolidates controls into a dense Bloomberg-style research terminal, adds persistent color/density customization, a collapsible navigation rail, and a configurable Scenario Studio reasoning slider (Low / Medium / High) while retaining server-side scenario validation. See `V8_TERMINAL_UI.md`.
+
 ## v7 AI counterfactual layer
 
 The v7 extension turns the optional LLM layer into a constrained controller for MACROSCOPE rather than a free-form chatbot.

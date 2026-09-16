@@ -307,24 +307,61 @@ async function callProvider(env, body) {
   });
   if (!r.ok) throw new Error(`Provider ${r.status}: ${(await r.text()).slice(0, 500)}`);
   const data = await r.json();
-  const raw = data?.choices?.[0]?.message?.content;
-  if (!raw) throw new Error('Empty provider response');
+  const choice = data?.choices?.[0] || {};
+  const message = choice?.message || {};
+  const raw = message?.content;
+  if (!raw || !String(raw).trim()) {
+    const finish = safeString(choice?.finish_reason || 'unknown', 60);
+    const reasoning = safeString(message?.reasoning || '', 240);
+    const usage = data?.usage || {};
+    const detail = reasoning
+      ? `; reasoning was produced but no final content (${reasoning.length} chars sampled)`
+      : '';
+    throw new Error(
+      `Empty provider response (finish_reason=${finish}, completion_tokens=${usage?.completion_tokens ?? 'unknown'}${detail})`
+    );
+  }
   return String(raw);
 }
 
-async function callScenarioProvider(env, body) {
+function scenarioReasoningEffort(context) {
+  const raw = String(context?.aiOptions?.reasoningEffort || 'low').toLowerCase();
+  return ['low','medium','high'].includes(raw) ? raw : 'low';
+}
+function scenarioCompletionBudget(effort) {
+  return effort === 'high' ? 4400 : effort === 'medium' ? 3400 : 2600;
+}
+async function callScenarioProvider(env, body, effort='low') {
+  const budget = scenarioCompletionBudget(effort);
+  const primary = {
+    ...body,
+    reasoning_effort: effort,
+    include_reasoning: false,
+    max_completion_tokens: Math.max(Number(body?.max_completion_tokens) || 0, budget)
+  };
   try {
-    return await callProvider(env, body);
+    return await callProvider(env, primary);
   } catch (e) {
     const msg = String(e?.message || e);
-    if (!/Provider 400:|response_format|json/i.test(msg)) throw e;
-    const fallback = {...body};
+    if (!/Provider 400:|response_format|json|Empty provider response/i.test(msg)) throw e;
+
+    // Retry once with the simplest supported output mode. GPT-OSS can spend a
+    // large share of its completion budget on reasoning; low effort plus a
+    // larger completion budget leaves room for the final JSON object.
+    const fallback = {
+      ...primary,
+      temperature: 0.5,
+      reasoning_effort: effort,
+      include_reasoning: false,
+      max_completion_tokens: Math.max(3000, budget),
+      messages: [...(body.messages || [])]
+    };
     delete fallback.response_format;
-    fallback.messages = [...(body.messages || [])];
     if (fallback.messages[0]?.role === 'system') {
       fallback.messages[0] = {
         ...fallback.messages[0],
-        content: fallback.messages[0].content + '\n\nFallback mode: return exactly one valid JSON object and no markdown or commentary.'
+        content: fallback.messages[0].content +
+          '\n\nRETRY MODE: Return exactly one compact valid JSON object. No markdown, no prose before or after the JSON. Keep rationale and reasons brief.'
       };
     }
     return await callProvider(env, fallback);
@@ -591,7 +628,8 @@ export default {
         max_completion_tokens: 1200,
         response_format: {type:'json_object'}
       };
-      const raw = await callScenarioProvider(env, body);
+      const effort = scenarioReasoningEffort(context);
+      const raw = await callScenarioProvider(env, body, effort);
       const parsed = parseModelJson(raw);
       const normalized = normalizeScenarioDraft(parsed, context);
       const command = validateScenario(normalized, context, registry);
