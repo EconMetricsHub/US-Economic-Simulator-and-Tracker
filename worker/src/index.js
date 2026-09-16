@@ -41,13 +41,13 @@ function registryFromContext(context) {
       id: String(x.id),
       label: safeString(x.label || x.id, 100),
       unit: safeString(x.unit || 'model_units', 60),
-      minimum: Number(x.minimum),
-      maximum: Number(x.maximum),
+      minimum: Number(x.minimum ?? x.min),
+      maximum: Number(x.maximum ?? x.max),
       step: Number(x.step) || 1,
-      currentValue: Number(x.currentValue),
-      allowedOperations: Array.isArray(x.allowedOperations) ? x.allowedOperations.filter(v => OPS.includes(v)) : OPS,
-      economicMeaning: safeString(x.economicMeaning || x.description || '', 700),
-      downstreamEffects: Array.isArray(x.downstreamEffects) ? x.downstreamEffects.slice(0, 10).map(String) : []
+      currentValue: Number(x.currentValue ?? x.cur),
+      allowedOperations: Array.isArray(x.allowedOperations ?? x.ops) ? (x.allowedOperations ?? x.ops).filter(v => OPS.includes(v)) : OPS,
+      economicMeaning: safeString(x.economicMeaning || x.description || x.label || '', 180),
+      downstreamEffects: []
     });
   }
   for (const x of shocks) {
@@ -56,9 +56,9 @@ function registryFromContext(context) {
       id: String(x.id),
       label: safeString(x.label || x.id, 100),
       unit: safeString(x.unit || 'model_units', 60),
-      minimum: Number(x.minimum),
-      maximum: Number(x.maximum),
-      economicMeaning: safeString(x.economicMeaning || x.description || '', 700)
+      minimum: Number(x.minimum ?? x.min),
+      maximum: Number(x.maximum ?? x.max),
+      economicMeaning: safeString(x.economicMeaning || x.description || x.label || '', 160)
     });
   }
   if (!sliderMap.size) throw new Error('No slider registry supplied by the application');
@@ -81,7 +81,7 @@ function scenarioSchema(sliderIds, shockIds) {
         items: {
           type: 'object',
           properties: {
-            id: {type: 'string', enum: sliderIds},
+            id: {type: 'string'},
             operation: {type: 'string', enum: OPS},
             value: {type: 'number'},
             reason: {type: 'string'}
@@ -126,7 +126,7 @@ function scenarioSchema(sliderIds, shockIds) {
             items: {
               type: 'object',
               properties: {
-                target: {type: 'string', enum: shockIds},
+                target: {type: 'string'},
                 effect: {type: 'number'},
                 lagMonths: {type: 'integer'},
                 peakMonth: {type: 'integer'}
@@ -486,7 +486,7 @@ export default {
       const sliderIds = [...registry.sliderMap.keys()];
       const shockIds = [...registry.shockMap.keys()];
       const schema = scenarioSchema(sliderIds, shockIds);
-      const system = `You are the scenario-construction layer for MACROSCOPE. Translate the user's economic counterfactual into a cautious structured command. You do NOT execute code, manipulate the interface, or invent new controls. Use only slider IDs and shock-target IDs supplied in the simulator context.\n\nUse sliderChanges for persistent state or policy changes that correspond to existing controls. For temporary, lagged, or explicitly time-bounded macro effects, use the structured shock object. A scenario may use both. If the user asks to enable or disable the Taylor Rule, set settings.taylorRule.apply=true and choose enabled accordingly. Otherwise set apply=false and preserve the current Taylor Rule state in enabled. Do not change the region; return the current context country.\n\nOperations: set means the requested absolute level; increase/decrease means a positive delta from the current value. Respect units, ranges, and economic meaning from the registry. Do not force every plausible channel into the scenario. Prefer the smallest defensible set of controls, generally 1-8 slider changes and no more than 5 shock channels. Do not claim causal certainty. Preserve ambiguity as assumptions and lower confidence when the prompt is underspecified.\n\nFor financial or economic news, treat the text as a scenario input rather than verified truth unless the context marks it as observed data.`;
+      const system = `You are the scenario-construction layer for MACROSCOPE. Translate the user's economic counterfactual into a cautious structured command. You do NOT execute code, manipulate the interface, or invent new controls. Use only slider IDs and shock-target IDs supplied in the compact simulator context. Unknown IDs are rejected server-side.\n\nUse sliderChanges for persistent state or policy changes that correspond to existing controls. For temporary, lagged, or explicitly time-bounded macro effects, use the structured shock object. A scenario may use both. If the user asks to enable or disable the Taylor Rule, set settings.taylorRule.apply=true and choose enabled accordingly. Otherwise set apply=false and preserve the current Taylor Rule state in enabled. Do not change the region; return the current context country.\n\nOperations: set means the requested absolute level; increase/decrease means a positive delta from the current value. Respect units, ranges, and economic meaning from the registry. Do not force every plausible channel into the scenario. Prefer the smallest defensible set of controls, generally 1-8 slider changes and no more than 5 shock channels. Do not claim causal certainty. Preserve ambiguity as assumptions and lower confidence when the prompt is underspecified.\n\nFor financial or economic news, treat the text as a scenario input rather than verified truth unless the context marks it as observed data.`;
       const body = {
         model: env.LLM_MODEL || 'openai/gpt-oss-20b',
         messages: [
@@ -494,7 +494,7 @@ export default {
           {role:'user', content:`SIMULATOR CONTEXT:\n${JSON.stringify(context || {})}\n\nCOUNTERFACTUAL OR NEWS INPUT:\n${text}`}
         ],
         temperature: 0.2,
-        max_completion_tokens: 1800,
+        max_completion_tokens: 1000,
         response_format: {
           type: 'json_schema',
           json_schema: {
