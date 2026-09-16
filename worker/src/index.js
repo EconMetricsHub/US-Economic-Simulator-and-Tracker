@@ -326,11 +326,9 @@ const DATA_SERIES = {
   }
 };
 
-const CORE_DATA_SERIES = [
-  'headline_cpi','core_cpi','unemployment','labor_force_participation','payroll_change',
-  'real_gdp_growth','fed_funds','two_year_treasury','ten_year_treasury','mortgage_30y',
-  'housing_starts','wti_oil','henry_hub_gas','pce_inflation','real_pce_growth'
-];
+// A broad "bring current" request means the complete approved catalog.
+// Narrower requests are still selected by the LLM from this same allowlist.
+const CORE_DATA_SERIES = Object.freeze(Object.keys(DATA_SERIES));
 
 function transformFredValue(def, raw) {
   const n = Number(raw);
@@ -341,7 +339,7 @@ function transformFredValue(def, raw) {
 
 async function selectDataSeries(env, prompt) {
   const text = String(prompt || '').toLowerCase();
-  if (/bring\s+macroscope\s+current|bring\s+the\s+model\s+current|update\s+(all|the)\s+(major\s+)?(macro|economic|data)|latest\s+(major\s+)?(macro|economic)\s+data/.test(text)) {
+  if (/bring\s+macroscope\s+(fully\s+)?current|bring\s+the\s+model\s+(fully\s+)?current|update\s+(all|the)\s+(major\s+)?(macro|economic|official|data)|latest\s+(available\s+)?(major\s+)?(u\.s\.\s+)?(macro|economic|official)\s+data|fully\s+current\s+using\s+the\s+latest/.test(text)) {
     return {series: CORE_DATA_SERIES, rationale:'Broad current-data refresh requested.'};
   }
   const keys = Object.keys(DATA_SERIES);
@@ -455,7 +453,7 @@ export default {
       return new Response(JSON.stringify({error:'Origin not allowed'}), {status:403, headers:{...h,'Content-Type':'application/json'}});
     }
     if (request.method === 'GET') {
-      return new Response(JSON.stringify({ok:true, service:'MACROSCOPE AI bridge', model:env.LLM_MODEL || 'openai/gpt-oss-20b'}), {headers:{...h,'Content-Type':'application/json'}});
+      return new Response(JSON.stringify({ok:true, service:'MACROSCOPE AI + Data Copilot bridge', model:env.LLM_MODEL || 'openai/gpt-oss-20b'}), {headers:{...h,'Content-Type':'application/json'}});
     }
     if (request.method !== 'POST') return new Response(JSON.stringify({error:'POST only'}), {status:405, headers:{...h,'Content-Type':'application/json'}});
 

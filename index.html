@@ -680,6 +680,15 @@ kbd{font-family:var(--font-mono);font-size:10.5px;background:var(--surface3);bor
 .data-map-badge{display:inline-block;font:8px var(--font-mono);letter-spacing:.04em;padding:2px 5px;border:1px solid var(--border2);background:var(--surface2);color:var(--text-dim);margin-top:6px}.data-map-badge.input{color:var(--pos)}.data-map-badge.output{color:var(--info)}.data-map-badge.display{color:var(--muted)}
 .data-update-error{border:1px solid rgba(255,64,85,.35);background:var(--neg-dim);padding:8px;margin-top:8px;font:9px/1.45 var(--font-mono);color:var(--neg)}
 .data-copilot-empty{border:1px dashed var(--border2);padding:28px 18px;text-align:center;color:var(--muted);font:10px/1.6 var(--font-mono)}
+.ai-route-strip{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin:8px 0;padding:7px 9px;border:1px solid var(--border);background:var(--surface2);font:9px var(--font-mono);color:var(--muted)}.ai-route-strip b{color:var(--text)}
+.ai-route-notice{border:1px solid var(--info);background:var(--info-dim);padding:12px;font:11px/1.55 var(--font-mono);color:var(--text-dim)}
+.data-update-table-wrap{overflow:auto;border:1px solid var(--border);background:var(--bg)}
+.data-review-table{width:100%;min-width:1080px;border-collapse:collapse;font:9.5px/1.35 var(--font-mono)}
+.data-review-table th{position:sticky;top:0;z-index:1;background:var(--surface2);color:var(--muted);text-transform:uppercase;letter-spacing:.05em;text-align:left;padding:8px;border-bottom:1px solid var(--border)}
+.data-review-table td{padding:9px 8px;border-bottom:1px solid var(--border);vertical-align:top;color:var(--text-dim)}
+.data-review-table tr:not(.selected){opacity:.5}.data-review-table tr.selected{background:rgba(44,127,255,.035)}
+.data-review-table a{color:var(--info);text-decoration:none}.data-review-table a:hover{text-decoration:underline}.data-check-cell{width:36px;text-align:center}.data-latest-value{font-weight:700;color:var(--text)!important}
+.data-table-sub{margin-top:3px;color:var(--muted);font-size:8.5px}.data-map-inline{display:inline-block;padding:2px 5px;border:1px solid var(--border);font-size:8px;white-space:nowrap}.data-map-inline.input{color:var(--pos)}.data-map-inline.output{color:var(--info)}.data-map-inline.display{color:var(--muted)}
 .provenance-legend{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.provenance-chip{font:8px var(--font-mono);padding:3px 6px;border:1px solid var(--border);background:var(--surface2);color:var(--muted)}.provenance-chip.official{color:var(--pos)}.provenance-chip.scenario{color:var(--warn)}.provenance-chip.user{color:var(--accent)}.provenance-chip.model{color:var(--info)}
 @media(max-width:1050px){.data-copilot-shell{grid-template-columns:1fr}.data-update-grid{grid-template-columns:1fr}}
 
@@ -2806,7 +2815,7 @@ function buildContent() {
   let html = `<div class="section active" id="sec-overview">
     <div class="ov-shell">
       <div class="ov-statusbar">
-        <div class="ov-status-left"><span class="ov-pill live">LIVE BASELINE</span><span class="ov-pill">MODEL v7.0</span><span class="ov-pill">${(COUNTRY_CONFIGS[currentCountry]||COUNTRY_CONFIGS.us).name}</span></div>
+        <div class="ov-status-left"><span class="ov-pill live">LIVE BASELINE</span><span class="ov-pill">MODEL v7.2</span><span class="ov-pill">${(COUNTRY_CONFIGS[currentCountry]||COUNTRY_CONFIGS.us).name}</span></div>
         <div class="ov-status-right"><span class="ov-pill" id="ov-data-status">CALENDAR PENDING</span><span class="ov-pill" id="ov-horizon-status">${timeHorizon}YR HORIZON</span></div>
       </div>
       <div class="ov-regime neutral" id="ov-regime"></div>
@@ -2839,7 +2848,7 @@ function buildContent() {
   html += `<div class="section" id="sec-data-copilot">
     <div class="sec-hdr">
       <div class="sec-title">Data Copilot</div>
-      <div class="sec-desc">Ask for current U.S. macro data in natural language. The Worker uses the LLM only to select approved series, then fetches the actual observations from FRED with source, series, observation date, and retrieval time. Nothing changes until you approve it.</div>
+      <div class="sec-desc">Ask for current U.S. macro data here—or from Ask MACROSCOPE. Current-data requests are auto-routed to this review gate. The Worker uses the LLM only to select approved series, then fetches actual observations from FRED with source, series, observation date, and retrieval time. Nothing changes until you approve it.</div>
     </div>
     <div class="data-copilot-shell">
       <div class="data-copilot-panel">
@@ -3589,7 +3598,7 @@ async function runAIScenarioDraft() {
   if(st)st.textContent='SCENARIO RUN · EXPLAINING…';
   if(!endpoint){if(st)st.textContent='SCENARIO RUN';return;}
   try{
-    const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'analyst',prompt:'Explain the baseline-to-counterfactual result. Identify the strongest causal channels, countervailing forces, and assumptions. Do not introduce facts that are not in the supplied context.',context:{model:'MACROSCOPE v7 counterfactual',country:currentCountry,evaluationMonth:shockProjectionMonth,command,before,after,delta:run.delta,currentState:analystContextPayload()}})});
+    const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'analyst',prompt:'Explain the baseline-to-counterfactual result. Identify the strongest causal channels, countervailing forces, and assumptions. Do not introduce facts that are not in the supplied context.',context:{model:'MACROSCOPE v7.2 counterfactual',country:currentCountry,evaluationMonth:shockProjectionMonth,command,before,after,delta:run.delta,currentState:analystContextPayload()}})});
     const data=await r.json().catch(()=>({})); if(!r.ok)throw new Error(data.error||`AI endpoint HTTP ${r.status}`);
     const answer=String(data.answer||'').trim(); if(!answer)throw new Error('Empty analyst response');
     if(out)out.textContent=`SCENARIO EXECUTED\n${formatAIScenarioCommand(command,{before,after,delta:run.delta})}\n\nAI EXPLANATION\n${answer}`;
@@ -3698,19 +3707,40 @@ function renderScenarioTreeSummary(){const el=document.getElementById('tree-summ
 
 // ── V6 ASK MACROSCOPE ────────────────────────────────────────────
 function topModelDrivers(m,n=6){return Object.entries(m.gdpContributions||{}).filter(([k])=>k!=='baseline').sort((a,b)=>Math.abs(b[1])-Math.abs(a[1])).slice(0,n).map(([name,value])=>({name,value:+value.toFixed(3)}));}
-function analystContextPayload(){const m=compute(),pa=portfolioAnalytics(m),tree=scenarioTreeWeighted();return {model:'MACROSCOPE v7.0',country:currentCountry,horizonYears:timeHorizon,projectionMonth:shockProjectionMonth,metrics:{gdp:m.gdp,cpi:m.cpi,unemployment:m.unemp,tenYear:m.tenyr,mortgage:m.mortg,sp500Index:m.sp500,financialStability:m.fsi,recessionRisk:m.recessionRisk,consumerConfidence:m.conf,effectiveDeficit:m.effectiveDeficit},topGdpDrivers:topModelDrivers(m),activeScenarioShocks:(m.shockReport?.eventSummaries||[]).map(x=>({label:x.label,path:+x.path?.toFixed?.(2)||x.path,activeChannels:x.activeChannels})),releaseSignals:(m.calendarShockReport?.activeShocks||[]).slice(0,5).map(x=>({label:x.label,surpriseZ:x.surpriseZ,path:x.path})),portfolio:{value:portfolioValue,scenarioReturn:pa.scenarioReturn,volatilityProxy:pa.volProxy,holdings:pa.rows.map(r=>({symbol:r.symbol,weight:r.weight,scenarioReturn:r.ret,contribution:r.contribution}))},scenarioTree:tree};}
-function buildAnalystSection(){return `<div class="section" id="sec-analyst"><div class="sec-hdr"><div class="sec-title">Ask MACROSCOPE</div><div class="sec-desc">Use an LLM as an explanation layer over the simulator—not as a replacement for the equations. Questions are grounded in the current model state, active shocks, release signals, scenario tree and portfolio.</div></div><div class="analyst-layout"><div class="analyst-box"><div class="ai-box-title">Question</div><textarea id="analyst-prompt" class="analyst-prompt" placeholder="Why is inflation rising in this scenario? Which assumptions are driving the portfolio drawdown? What would have to change to avoid recession without reigniting inflation?"></textarea><div class="quick-prompts"><button class="btn" onclick="setAnalystPrompt('Explain the current macro scenario and identify the three most important drivers.')">Explain scenario</button><button class="btn" onclick="setAnalystPrompt('What is driving inflation, and which changes would reduce it with the least damage to growth?')">Inflation drivers</button><button class="btn" onclick="setAnalystPrompt('Explain the current portfolio risk and identify the holdings most sensitive to this scenario.')">Portfolio risk</button><button class="btn" onclick="setAnalystPrompt('What assumptions could invalidate this outlook? Distinguish model uncertainty from real-world uncertainty.')">Challenge outlook</button></div><input id="analyst-endpoint" class="analyst-endpoint" placeholder="Serverless AI endpoint (same Worker as Shock Studio)" onchange="saveAIEndpoint(this.value)"><div class="analyst-toolbar" style="margin-top:8px"><button class="btn primary" onclick="askMacroscope()">Ask MACROSCOPE</button><button class="btn" onclick="localMacroscopeExplain()">Local model summary</button><span id="analyst-status" class="ai-status">Backend optional</span></div></div><div class="analyst-box"><div class="ai-box-title">Analyst answer</div><div class="analyst-answer" id="analyst-answer">Ask a question, or use Local model summary for an explanation that requires no external LLM.</div></div></div><div class="portfolio-panel" style="margin-top:10px"><div class="ai-box-title">Current context sent to the analyst</div><div id="analyst-snapshot" class="news-meta-line" style="line-height:1.7"></div></div><div class="portfolio-note">The analyst receives simulator outputs and assumptions, not privileged market information. It should describe model logic, uncertainty and scenario implications rather than present generated statements as observed facts.</div></div>`;}
+function analystContextPayload(){const m=compute(),pa=portfolioAnalytics(m),tree=scenarioTreeWeighted();return {model:'MACROSCOPE v7.2',country:currentCountry,horizonYears:timeHorizon,projectionMonth:shockProjectionMonth,metrics:{gdp:m.gdp,cpi:m.cpi,unemployment:m.unemp,tenYear:m.tenyr,mortgage:m.mortg,sp500Index:m.sp500,financialStability:m.fsi,recessionRisk:m.recessionRisk,consumerConfidence:m.conf,effectiveDeficit:m.effectiveDeficit},topGdpDrivers:topModelDrivers(m),activeScenarioShocks:(m.shockReport?.eventSummaries||[]).map(x=>({label:x.label,path:+x.path?.toFixed?.(2)||x.path,activeChannels:x.activeChannels})),releaseSignals:(m.calendarShockReport?.activeShocks||[]).slice(0,5).map(x=>({label:x.label,surpriseZ:x.surpriseZ,path:x.path})),portfolio:{value:portfolioValue,scenarioReturn:pa.scenarioReturn,volatilityProxy:pa.volProxy,holdings:pa.rows.map(r=>({symbol:r.symbol,weight:r.weight,scenarioReturn:r.ret,contribution:r.contribution}))},scenarioTree:tree};}
+function buildAnalystSection(){return `<div class="section" id="sec-analyst"><div class="sec-hdr"><div class="sec-title">Ask MACROSCOPE</div><div class="sec-desc">Use one prompt for model explanation or sourced data research. Requests for current/latest official observations are automatically routed to Data Copilot so the LLM never fabricates live values.</div></div><div class="analyst-layout"><div class="analyst-box"><div class="ai-box-title">Question</div><textarea id="analyst-prompt" class="analyst-prompt" placeholder="Explain the current model—or ask for the latest official CPI, labor, rates, housing, energy or GDP data."></textarea><div class="quick-prompts"><button class="btn" onclick="setAnalystPrompt('Explain the current macro scenario and identify the three most important drivers.')">Explain scenario</button><button class="btn" onclick="setAnalystPrompt('What is driving inflation, and which changes would reduce it with the least damage to growth?')">Inflation drivers</button><button class="btn" onclick="setAnalystPrompt('Bring MACROSCOPE current using the latest official U.S. macro data, cite every source and date, compare the observations with the model, and prepare updates for my approval.')">Update current data</button><button class="btn" onclick="setAnalystPrompt('Explain the current portfolio risk and identify the holdings most sensitive to this scenario.')">Portfolio risk</button><button class="btn" onclick="setAnalystPrompt('What assumptions could invalidate this outlook? Distinguish model uncertainty from real-world uncertainty.')">Challenge outlook</button></div><div class="ai-route-strip"><span><b>EXPLAIN</b> model state</span><span>•</span><span><b>UPDATE DATA</b> official FRED-backed observations</span><span>•</span><span><b>SCENARIO</b> use AI Counterfactual Studio</span></div><input id="analyst-endpoint" class="analyst-endpoint" placeholder="Serverless AI endpoint (same Worker as Shock Studio)" onchange="saveAIEndpoint(this.value)"><div class="analyst-toolbar" style="margin-top:8px"><button class="btn primary" onclick="askMacroscope()">Ask MACROSCOPE</button><button class="btn" onclick="localMacroscopeExplain()">Local model summary</button><span id="analyst-status" class="ai-status">AUTO ROUTER READY</span></div></div><div class="analyst-box"><div class="ai-box-title">Analyst answer</div><div class="analyst-answer" id="analyst-answer">Ask a model question or request current official data. Data-update requests will open a reviewable sourced update table before anything changes.</div></div></div><div class="portfolio-panel" style="margin-top:10px"><div class="ai-box-title">Current context sent to the analyst</div><div id="analyst-snapshot" class="news-meta-line" style="line-height:1.7"></div></div><div class="portfolio-note">Provenance rule: official observations are fetched by the Worker from approved FRED series; the LLM may select series and explain results, but it cannot supply the factual observations itself. Scenario assumptions and user overrides remain separate.</div></div>`;}
 function setAnalystPrompt(t){const el=document.getElementById('analyst-prompt');if(el){el.value=t;el.focus();}}
 function loadAIEndpoint(){const v=normalizeAIEndpoint(localStorage.getItem('macroscope.ai.endpoint')||DEFAULT_AI_ENDPOINT||'');saveAIEndpoint(v);const a=document.getElementById('ai-scenario-endpoint');if(a&&!a.value)a.value=v;const b=document.getElementById('analyst-endpoint');if(b&&!b.value)b.value=v;const c=document.getElementById('data-copilot-endpoint');if(c&&!c.value)c.value=v;}
 function renderAnalystSnapshot(m){const el=document.getElementById('analyst-snapshot');if(!el)return;const pa=portfolioAnalytics(m),drivers=topModelDrivers(m,4);el.innerHTML=`GDP <b>${m.gdp.toFixed(1)}%</b> · CPI <b>${m.cpi.toFixed(1)}%</b> · 10yr <b>${m.tenyr.toFixed(2)}%</b> · Recession score <b>${m.recessionRisk.toFixed(0)}</b> · Portfolio <b>${pa.scenarioReturn>=0?'+':''}${pa.scenarioReturn.toFixed(1)}%</b><br>Top GDP drivers: ${drivers.map(x=>`${escapeHtml(x.name)} ${x.value>=0?'+':''}${x.value.toFixed(2)}pp`).join(' · ')}`;}
 function localMacroscopeText(){const m=compute(),pa=portfolioAnalytics(m),d=topModelDrivers(m,5),shockCount=Object.keys(activeEventIds).length,tree=scenarioTreeWeighted();const direction=m.gdp<0?'recessionary':m.gdp<1.5?'weak-growth':m.gdp>3.5?'high-growth':'moderate-growth';return `MACROSCOPE currently describes a ${direction} regime: GDP ${m.gdp.toFixed(1)}%, CPI ${m.cpi.toFixed(1)}%, 10-year Treasury ${m.tenyr.toFixed(2)}%, and a recession-risk score of ${m.recessionRisk.toFixed(0)}/100.\n\nThe largest GDP contributions are ${d.map(x=>`${x.name} (${x.value>=0?'+':''}${x.value.toFixed(2)}pp)`).join(', ')}. ${shockCount?`${shockCount} user scenario shock${shockCount===1?' is':'s are'} active at month ${shockProjectionMonth}.`:'No user-created scenario shock is active.'}\n\nThe current portfolio stress result is ${pa.scenarioReturn>=0?'+':''}${pa.scenarioReturn.toFixed(1)}% on a $${portfolioValue.toLocaleString()} portfolio, with an approximate volatility proxy of ${pa.volProxy.toFixed(1)}%. The largest portfolio contributions are ${pa.rows.slice().sort((a,b)=>Math.abs(b.contribution)-Math.abs(a.contribution)).slice(0,3).map(r=>`${r.symbol} ${r.contribution>=0?'+':''}${r.contribution.toFixed(2)}pp`).join(', ')}.${tree?`\n\nThe probability-weighted scenario tree implies GDP ${tree.gdp.toFixed(2)}%, CPI ${tree.cpi.toFixed(2)}%, and portfolio return ${tree.portfolioReturn>=0?'+':''}${tree.portfolioReturn.toFixed(1)}%.`:''}\n\nThese are model outputs based on transparent scenario priors; they are not forecasts with statistically estimated confidence intervals.`;}
 function localMacroscopeExplain(){const out=document.getElementById('analyst-answer');if(out)out.textContent=localMacroscopeText();const st=document.getElementById('analyst-status');if(st)st.textContent='LOCAL MODEL';}
+
+function isCurrentDataResearchPrompt(prompt){
+  const q=String(prompt||'').toLowerCase();
+  const broad=/\b(bring|make|keep)\s+(macroscope|the model|model)\s+(fully\s+)?current\b|\b(refresh|sync)\s+(the\s+)?(macro|economic|official|model)\s*data\b/.test(q);
+  const freshness=/\b(latest|current|today|now|newest|most recent|up[- ]?to[- ]?date|update|refresh|sync|retrieve|fetch|source|cite)\b/.test(q);
+  const data=/\b(cpi|inflation|pce|unemployment|payroll|labor[- ]?force|participation|gdp|fed(eral)? funds|iorb|treasury|2[- ]?year|10[- ]?year|mortgage|housing starts?|wti|oil|natural gas|henry hub|industrial production|consumer spending|macro(?:economic)? data|economic data|official data|observations?)\b/.test(q);
+  const explicitlyHistorical=/\b(in|during|from)\s+(19|20)\d{2}\b|\bhistorical\b/.test(q);
+  return !explicitlyHistorical && (broad || (freshness && data));
+}
+
+function sectionButton(id){return Array.from(document.querySelectorAll('.nav-item')).find(b=>(b.getAttribute('onclick')||'').includes(`'${id}'`))||null;}
+
+async function routeAnalystPromptToDataCopilot(prompt){
+  const st=document.getElementById('analyst-status'),out=document.getElementById('analyst-answer');
+  if(st)st.textContent='ROUTING → DATA COPILOT';
+  if(out)out.innerHTML='<div class="ai-route-notice"><b>Official-data request detected.</b><br>Routing to Data Copilot so current values come from approved FRED series rather than LLM-generated text.</div>';
+  showSection('data-copilot',sectionButton('data-copilot'));
+  const ta=document.getElementById('data-copilot-prompt');if(ta)ta.value=prompt;
+  await requestDataCopilotUpdate(prompt);
+}
 async function askMacroscope(){
   const prompt=document.getElementById('analyst-prompt')?.value.trim();
   const endpoint=normalizeAIEndpoint(document.getElementById('analyst-endpoint')?.value||localStorage.getItem('macroscope.ai.endpoint')||DEFAULT_AI_ENDPOINT||'');
   const out=document.getElementById('analyst-answer'),st=document.getElementById('analyst-status');
   if(!prompt){toast('Ask a question first');return;}
   if(!endpoint){localMacroscopeExplain();toast('No endpoint configured · showing local model summary');return;}
+  if(isCurrentDataResearchPrompt(prompt)){await routeAnalystPromptToDataCopilot(prompt);return;}
   saveAIEndpoint(endpoint);
   const endpointField=document.getElementById('analyst-endpoint');if(endpointField)endpointField.value=endpoint;
   if(st)st.textContent='THINKING…';
@@ -3765,21 +3795,36 @@ function dataCopilotMappingBadge(u){
 
 function safeSourceHref(v){try{const u=new URL(String(v||''));return /^https?:$/.test(u.protocol)?u.href:'#';}catch{return '#';}}
 
+function dataCopilotDeltaText(u,cur,nxt){
+  if(cur===null||nxt===null)return '—';
+  const d=nxt-cur;
+  const digits=Number.isFinite(+u.precision)?+u.precision:2;
+  const abs=Math.abs(d).toLocaleString('en-US',{minimumFractionDigits:digits,maximumFractionDigits:digits});
+  const sign=d>0?'+':d<0?'−':'';
+  if(String(u.units||'').startsWith('$'))return `${sign}$${abs}`;
+  if(String(u.units||'').includes('%'))return `${sign}${abs} pp`;
+  return `${sign}${abs}${u.units?` ${escapeHtml(u.units)}`:''}`;
+}
+
 function renderDataCopilotProposal(){
   const box=document.getElementById('data-copilot-results'),meta=document.getElementById('data-copilot-meta'),apply=document.getElementById('data-apply-btn'),all=document.getElementById('data-select-all'),none=document.getElementById('data-select-none');
   if(!box||!meta)return;
   const p=dataCopilotProposal;
   if(!p||!Array.isArray(p.updates)||!p.updates.length){box.className='data-copilot-empty';box.innerHTML='Ask the Data Copilot for current observations. Each result will show the official value, source, series, observation date, model mapping, and current-model comparison.';meta.textContent='No research request yet.';if(apply)apply.disabled=true;if(all)all.disabled=true;if(none)none.disabled=true;return;}
-  box.className='data-update-grid';
+  box.className='data-update-table-wrap';
   const when=p.generatedAt?new Date(p.generatedAt):null;
-  meta.innerHTML=`<strong>${p.updates.length} official observations</strong> · ${when&&!Number.isNaN(when.getTime())?when.toLocaleString():'retrieved now'}<br>${escapeHtml(p.provenanceNote||'Official values retrieved from approved data series.')}`;
-  box.innerHTML=p.updates.map((u,i)=>{
+  const actionable=p.updates.filter(u=>u.inputTarget||u.outputTarget).length;
+  const contextOnly=p.updates.length-actionable;
+  meta.innerHTML=`<strong>${p.updates.length} official observations</strong> · ${actionable} model-mapped · ${contextOnly} context-only · ${when&&!Number.isNaN(when.getTime())?when.toLocaleString():'retrieved now'}<br>${escapeHtml(p.provenanceNote||'Official values retrieved from approved data series.')}`;
+  const rows=p.updates.map((u,i)=>{
     const cur=Number.isFinite(+u.currentValue)?+u.currentValue:null;
     const nxt=Number.isFinite(+u.modelValue)?+u.modelValue:null;
-    const delta=cur!==null&&nxt!==null?nxt-cur:null;
     const source=safeSourceHref(u.sourceUrl);
-    return `<div class="data-update-card selected" id="data-update-card-${i}"><div class="data-update-top"><input class="data-update-check" type="checkbox" data-index="${i}" checked onchange="syncDataCopilotCard(${i},this.checked)"><div><div class="data-update-name">${escapeHtml(u.label||u.key)}</div><div class="data-update-series">${escapeHtml(u.seriesId||'')} · ${escapeHtml(u.observationDate||'')}</div></div><div class="data-update-new">${formatDataCopilotValue(u,u.modelValue)}</div></div><div class="data-update-diff"><div><span>Current model</span><b>${cur===null?'—':formatDataCopilotValue(u,cur)}</b></div><div><span>Prior obs.</span><b>${formatDataCopilotValue(u,u.previousModelValue)}</b></div><div><span>Difference</span><b>${delta===null?'—':`${delta>=0?'+':''}${formatDataCopilotValue(u,delta)}`}</b></div></div>${dataCopilotMappingBadge(u)}<div class="data-update-source">${escapeHtml(u.sourceAgency||u.source||'Official source')} · retrieved via FRED<br><a href="${escapeAttr(source)}" target="_blank" rel="noopener">FRED ${escapeHtml(u.seriesId||'series')} source ↗</a> · retrieved ${escapeHtml(u.retrievedAt||p.generatedAt||'')}</div></div>`;
-  }).join('')+(Array.isArray(p.errors)&&p.errors.length?`<div class="data-update-error" style="grid-column:1/-1">Some requested series could not be retrieved: ${p.errors.map(e=>`${escapeHtml(e.key)} — ${escapeHtml(e.error)}`).join('<br>')}</div>`:'');
+    const mapping=u.inputTarget?`INPUT → ${escapeHtml(u.inputTarget)}`:u.outputTarget?`ANCHOR → ${escapeHtml(u.outputTarget)}`:'CONTEXT ONLY';
+    const action=u.inputTarget||u.outputTarget?'Model update':'Context update';
+    return `<tr class="selected" id="data-update-card-${i}"><td class="data-check-cell"><input class="data-update-check" type="checkbox" data-index="${i}" checked onchange="syncDataCopilotCard(${i},this.checked)"></td><td><b>${escapeHtml(u.label||u.key)}</b><div class="data-table-sub">${escapeHtml(u.seriesId||'')}</div></td><td>${cur===null?'—':formatDataCopilotValue(u,cur)}</td><td class="data-latest-value">${formatDataCopilotValue(u,u.modelValue)}</td><td>${dataCopilotDeltaText(u,cur,nxt)}</td><td>${escapeHtml(u.observationDate||'—')}<div class="data-table-sub">prior ${escapeHtml(u.previousDate||'—')}</div></td><td><b>${escapeHtml(u.sourceAgency||u.source||'Official source')}</b><div class="data-table-sub"><a href="${escapeAttr(source)}" target="_blank" rel="noopener">FRED ${escapeHtml(u.seriesId||'series')} ↗</a></div></td><td><span class="data-map-inline ${u.inputTarget?'input':u.outputTarget?'output':'display'}">${mapping}</span><div class="data-table-sub">${action}</div></td></tr>`;
+  }).join('');
+  box.innerHTML=`<table class="data-review-table"><thead><tr><th>Apply</th><th>Metric</th><th>Current model</th><th>Latest official</th><th>Δ</th><th>Observation</th><th>Source</th><th>Model action</th></tr></thead><tbody>${rows}</tbody></table>`+(Array.isArray(p.errors)&&p.errors.length?`<div class="data-update-error">Some requested series could not be retrieved: ${p.errors.map(e=>`${escapeHtml(e.key)} — ${escapeHtml(e.error)}`).join('<br>')}</div>`:'');
   if(apply)apply.disabled=false;if(all)all.disabled=false;if(none)none.disabled=false;
 }
 
@@ -3787,8 +3832,9 @@ function syncDataCopilotCard(i,checked){document.getElementById('data-update-car
 function setAllDataCopilotChecks(v){document.querySelectorAll('.data-update-check').forEach(x=>{x.checked=!!v;syncDataCopilotCard(+x.dataset.index,!!v);});}
 function clearDataCopilotProposal(){dataCopilotProposal=null;renderDataCopilotProposal();const st=document.getElementById('data-copilot-status');if(st)st.textContent='REVIEW-GATED';}
 
-async function requestDataCopilotUpdate(){
-  const prompt=(document.getElementById('data-copilot-prompt')?.value||'').trim()||'Bring MACROSCOPE current. Retrieve the latest major U.S. macro observations, cite every source and date, compare them with the current model, and prepare updates for my approval.';
+async function requestDataCopilotUpdate(promptOverride=''){
+  const prompt=(String(promptOverride||'').trim()||document.getElementById('data-copilot-prompt')?.value||'').trim()||'Bring MACROSCOPE current. Retrieve the latest major U.S. macro observations, cite every source and date, compare them with the current model, and prepare updates for my approval.';
+  const promptBox=document.getElementById('data-copilot-prompt');if(promptBox&&promptBox.value!==prompt)promptBox.value=prompt;
   const endpoint=normalizeAIEndpoint(document.getElementById('data-copilot-endpoint')?.value||localStorage.getItem('macroscope.ai.endpoint')||DEFAULT_AI_ENDPOINT||'');
   const st=document.getElementById('data-copilot-status'),box=document.getElementById('data-copilot-results');
   if(currentCountry!=='us'){toast('Data Copilot v7.2 currently maps official U.S. series only');return;}
@@ -4370,7 +4416,7 @@ function renderPolChart(m) {
 // ── EXPORT / RESET ───────────────────────────────────────────────
 function exportJSON() {
   const m    = compute();
-  const data = { metadata:{ name:document.getElementById('sc-name').value, timestamp:new Date().toISOString(), version:'MACROSCOPE v7.0', shockProjectionMonth, officialSyncEnabled, officialDataGeneratedAt:officialData?.generatedAt||null, surpriseEngineGeneratedAt:surpriseEngine?.generatedAt||null, activeReleaseSignals:compute().calendarShockReport?.activeShocks?.length||0 }, inputs:vals, activeShocks:JSON.parse(JSON.stringify(activeEventIds)), customShockDefinitions:serializeCustomEvents(), shockAttribution:m.shockReport, releaseShockAttribution:m.calendarShockReport, outputs:{ gdp:m.gdp, cpi:m.cpi, tfp:m.tfp, tenyr:m.tenyr, twoyr:m.twoyr, thirtyr:m.thirtyr, mortgage:m.mortg, yieldSpread:m.yldSprd, housingAffordability:m.housingAff, sp500:m.sp500, consumerConfidence:m.conf, deficitPctGDP:m.defAdj, dollar:m.dollarAdj } };
+  const data = { metadata:{ name:document.getElementById('sc-name').value, timestamp:new Date().toISOString(), version:'MACROSCOPE v7.2', shockProjectionMonth, officialSyncEnabled, officialDataGeneratedAt:officialData?.generatedAt||null, surpriseEngineGeneratedAt:surpriseEngine?.generatedAt||null, activeReleaseSignals:compute().calendarShockReport?.activeShocks?.length||0 }, inputs:vals, activeShocks:JSON.parse(JSON.stringify(activeEventIds)), customShockDefinitions:serializeCustomEvents(), shockAttribution:m.shockReport, releaseShockAttribution:m.calendarShockReport, outputs:{ gdp:m.gdp, cpi:m.cpi, tfp:m.tfp, tenyr:m.tenyr, twoyr:m.twoyr, thirtyr:m.thirtyr, mortgage:m.mortg, yieldSpread:m.yldSprd, housingAffordability:m.housingAff, sp500:m.sp500, consumerConfidence:m.conf, deficitPctGDP:m.defAdj, dollar:m.dollarAdj } };
   const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
   const a    = document.createElement('a');
   a.href     = URL.createObjectURL(blob);
