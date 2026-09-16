@@ -1,9 +1,10 @@
-name = "macroscope-shock-ai"
+name = "macroscope-ai"
 main = "src/index.js"
 compatibility_date = "2026-09-01"
 
 [vars]
-ALLOWED_ORIGIN = "https://YOUR-USERNAME.github.io"
-LLM_API_BASE = "https://api.openai.com/v1"
-LLM_MODEL = "gpt-4.1-mini"
-# Set LLM_API_KEY with: wrangler secret put LLM_API_KEY
+# Use your exact GitHub Pages origin. You can comma-separate multiple allowed origins.
+ALLOWED_ORIGIN = "https://econmetricshub.github.io"
+LLM_API_BASE = "https://api.groq.com/openai/v1"
+LLM_MODEL = "openai/gpt-oss-20b"
+# Never put the API key here. Set it with: wrangler secret put LLM_API_KEY

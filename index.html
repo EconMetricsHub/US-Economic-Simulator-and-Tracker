@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
 :root {
   --bg: #060b18;
@@ -1805,15 +1806,19 @@ function renderCountryComparison() {
 // ── TAYLOR RULE ────────────────────────────────────────────────────
 let taylorRuleOn = false;
 
-function toggleTaylorRule() {
-  taylorRuleOn = !taylorRuleOn;
+function syncTaylorRuleUi() {
   const btn = document.getElementById('tr-toggle');
   if (btn) {
     btn.textContent = taylorRuleOn ? '\u26a1 Taylor Rule: ON' : '\u26a1 Taylor Rule: OFF';
     btn.classList.toggle('on', taylorRuleOn);
   }
   const ffrCard = document.getElementById('r-ffr');
-  if (ffrCard) ffrCard.closest('.slider-card').classList.toggle('tr-active', taylorRuleOn);
+  if (ffrCard && ffrCard.closest('.slider-card')) ffrCard.closest('.slider-card').classList.toggle('tr-active', taylorRuleOn);
+}
+
+function toggleTaylorRule() {
+  taylorRuleOn = !taylorRuleOn;
+  syncTaylorRuleUi();
   render();
   commitChange();
 }
@@ -2767,7 +2772,7 @@ function buildContent() {
   let html = `<div class="section active" id="sec-overview">
     <div class="ov-shell">
       <div class="ov-statusbar">
-        <div class="ov-status-left"><span class="ov-pill live">LIVE BASELINE</span><span class="ov-pill">MODEL v6.0</span><span class="ov-pill">${(COUNTRY_CONFIGS[currentCountry]||COUNTRY_CONFIGS.us).name}</span></div>
+        <div class="ov-status-left"><span class="ov-pill live">LIVE BASELINE</span><span class="ov-pill">MODEL v7.0</span><span class="ov-pill">${(COUNTRY_CONFIGS[currentCountry]||COUNTRY_CONFIGS.us).name}</span></div>
         <div class="ov-status-right"><span class="ov-pill" id="ov-data-status">CALENDAR PENDING</span><span class="ov-pill" id="ov-horizon-status">${timeHorizon}YR HORIZON</span></div>
       </div>
       <div class="ov-regime neutral" id="ov-regime"></div>
@@ -3118,22 +3123,23 @@ function buildEventsSection() {
     </div>
 
     <div class="ai-studio">
+      <div class="pipeline-strip"><span class="pipeline-step">Question / news</span><span class="pipeline-arrow">→</span><span class="pipeline-step">Groq interprets</span><span class="pipeline-arrow">→</span><span class="pipeline-step">Registry validation</span><span class="pipeline-arrow">→</span><span class="pipeline-step">MACROSCOPE runs</span><span class="pipeline-arrow">→</span><span class="pipeline-step">AI explains outputs</span></div>
       <div class="ai-studio-grid">
         <div class="ai-box">
-          <div class="ai-box-title">AI Shock Studio · Duck.ai-style workflow</div>
-          <textarea id="ai-shock-prompt" class="ai-prompt" placeholder="Describe a shock in normal language — e.g. China blockades Taiwan for 45 days; semiconductor shipments collapse, oil rises, credit spreads widen, and the Fed delays cuts. Estimate a cautious 1-year transmission path."></textarea>
-          <input id="ai-shock-endpoint" class="ai-endpoint" placeholder="Serverless AI endpoint (Cloudflare Worker URL)" onchange="saveAIEndpoint(this.value)">
+          <div class="ai-box-title">AI Counterfactual Studio · structured-control workflow</div>
+          <textarea id="ai-scenario-prompt" class="ai-prompt" placeholder="Ask a counterfactual — e.g. What happens if inflation rises by 2 percentage points for a year? Simulate a recession with higher unemployment and lower consumption. What if the Fed responds aggressively? Compare a persistent oil-price shock with baseline. Enable the Taylor Rule."></textarea>
+          <input id="ai-scenario-endpoint" class="ai-endpoint" placeholder="Cloudflare Worker URL (Groq API key stays server-side)" onchange="saveAIEndpoint(this.value)">
           <div class="ai-actions">
-            <button class="btn primary" onclick="generateAIShock()">Generate structured shock</button>
-            <button class="btn" onclick="clearAIShockDraft()">Clear</button>
-            <span class="ai-status" id="ai-shock-status">Backend optional</span>
+            <button class="btn primary" onclick="generateAIScenario()">Interpret counterfactual</button>
+            <button class="btn" onclick="clearAIScenarioDraft()">Clear</button>
+            <span class="ai-status" id="ai-scenario-status">REGISTRY 2.0.0</span>
           </div>
-          <div class="ai-note">The AI layer proposes coefficients; it does not override the model automatically. Review the draft, then inject it explicitly. The endpoint is stored only in this browser.</div>
+          <div class="ai-note">The LLM cannot touch the interface or execute code. It can only propose IDs from the local slider/shock registry. MACROSCOPE validates the command, previews it, and waits for you to run it. The same Worker then explains the simulator's own outputs.</div>
         </div>
         <div class="ai-box">
-          <div class="ai-box-title">Proposed shock object</div>
-          <div class="ai-result" id="ai-shock-result">No AI draft yet. You can still use the manual structured-shock builder below.</div>
-          <div class="ai-actions" style="margin-top:8px"><button class="btn primary" id="ai-inject-btn" onclick="injectAIShockDraft()" disabled>Inject approved draft ↗</button></div>
+          <div class="ai-box-title">Validated command + counterfactual preview</div>
+          <div class="ai-result" id="ai-scenario-result">No AI command yet. The manual structured-shock builder remains available below.</div>
+          <div class="ai-actions" style="margin-top:8px"><button class="btn primary" id="ai-run-btn" onclick="runAIScenarioDraft()" disabled>Run validated scenario ↗</button></div>
         </div>
       </div>
     </div>
@@ -3222,11 +3228,18 @@ function showSection(id, btn) {
 }
 
 
-// ── V5 NEWS INTELLIGENCE + AI SHOCK STUDIO ──────────────────────
+// ── V7 NEWS INTELLIGENCE + AI COUNTERFACTUAL STUDIO ─────────────
 let newsSnapshot = null;
 let newsCategory = 'all';
-let aiShockDraft = null;
+let aiScenarioDraft = null;
+let lastAIScenarioRun = null;
+let aiRegistry = null;
 const NEWS_URL = 'data/news-feed.json';
+const SLIDER_REGISTRY_URL = 'data/slider-registry.json';
+const AI_REGISTRY_VERSION = '2.0.0';
+// Public default Worker endpoint. After deploying the Cloudflare Worker, paste its HTTPS URL here.
+// Visitors can still override this per-browser in the AI Studio endpoint field.
+const DEFAULT_AI_ENDPOINT = '';
 
 function escapeAttr(v) { return escapeHtml(v).replace(/`/g,'&#96;'); }
 
@@ -3264,7 +3277,7 @@ function renderNewsFeed() {
     <div class="news-card-top"><span class="news-cat">${escapeHtml(x.category||'news')}</span><span class="news-time">${escapeHtml(formatNewsTime(x.publishedAt))}</span></div>
     <div class="news-title">${escapeHtml(x.title||'Untitled')}</div>
     <div class="news-source">${escapeHtml(x.domain||x.source||'Source')}</div>
-    <div class="news-actions"><a class="btn" href="${escapeAttr(x.url||'#')}" target="_blank" rel="noopener noreferrer">Open source ↗</a><button class="btn primary" onclick="modelNewsAsShock(${i})">Model &amp; stress portfolio</button></div>
+    <div class="news-actions"><a class="btn" href="${escapeAttr(x.url||'#')}" target="_blank" rel="noopener noreferrer">Open source ↗</a><button class="btn primary" onclick="modelNewsAsShock(${i})">Model counterfactual</button></div>
   </article>`).join('');
 }
 
@@ -3282,87 +3295,225 @@ function modelNewsAsShock(index) {
   const x=filtered[index]; if (!x) return;
   openModelSection('events');
   setTimeout(()=>{
-    const ta=document.getElementById('ai-shock-prompt');
-    if (ta) ta.value=`Turn this headline into a cautious, explicitly uncertain economic shock scenario for the U.S. simulator. Distinguish immediate market effects from macro effects, use no more than five model channels, and avoid assuming the headline is fully confirmed.\n\nHeadline: ${x.title}\nSource: ${x.domain||x.source||''}\nPublished: ${x.publishedAt||''}\nURL: ${x.url||''}`;
+    const ta=document.getElementById('ai-scenario-prompt');
+    if (ta) ta.value=`Treat this headline as a conditional scenario rather than verified truth. Translate it into the smallest defensible set of MACROSCOPE slider changes and, only where useful, a time-dependent structured shock. State important assumptions and uncertainty.\n\nHeadline: ${x.title}\nSource: ${x.domain||x.source||''}\nPublished: ${x.publishedAt||''}\nURL: ${x.url||''}`;
     ta?.focus();
-    toast('Headline loaded → generate a shock → review → inject → Portfolio Lab updates automatically');
+    toast('Headline loaded → interpret → review → run → AI explains the simulator output');
   },0);
 }
 
 function saveAIEndpoint(v) { localStorage.setItem('macroscope.ai.endpoint',String(v||'').trim()); }
-function loadAIEndpoint() { const el=document.getElementById('ai-shock-endpoint'); if(el && !el.value) el.value=localStorage.getItem('macroscope.ai.endpoint')||''; }
-function clearAIShockDraft() { aiShockDraft=null; const r=document.getElementById('ai-shock-result'); if(r) r.textContent='No AI draft yet. You can still use the manual structured-shock builder below.'; const b=document.getElementById('ai-inject-btn'); if(b)b.disabled=true; const st=document.getElementById('ai-shock-status'); if(st)st.textContent='Backend optional'; }
 
-function aiContextPayload() {
+function inferRegistryUnit(sl) {
+  const label=String(sl?.label||'').toLowerCase();
+  if (label.includes('(bps)')) return 'basis_points';
+  if (label.includes('($/bbl)')) return 'usd_per_barrel';
+  if (label.includes('($/mmbtu)')) return 'usd_per_mmbtu';
+  if (label.includes('($/hr)')) return 'usd_per_hour';
+  if (label.includes('(%')) return 'percent';
+  if (+sl?.min===1 && +sl?.max===10) return 'index_points';
+  return 'model_units';
+}
+
+function runtimeRegistryFallback() {
+  const sliders={};
+  for (const cat of CATEGORIES) for (const sl of cat.sliders) sliders[sl.id]={
+    id:sl.id,label:sl.label,description:sl.desc,variable:sl.id,unit:inferRegistryUnit(sl),
+    minimum:sl.min,maximum:sl.max,step:sl.step,defaultValue:DEFAULTS[sl.id],
+    regionAvailability:['us','eu','uk','jp','cn','em'],allowedOperations:['set','increase','decrease'],
+    economicMeaning:sl.desc,downstreamEffects:[],source:'MACROSCOPE local simulator model',version:AI_REGISTRY_VERSION
+  };
+  const fallbackRanges={gdpA:[-5,5],cpiA:[-5,10],spA:[-50,50],ffr:[-5,5],oil:[-100,100],natgas:[-15,15],tariff:[-30,50],shippingCost:[-8,8],unemp:[-5,10],lfp:[-10,10],innovRate:[-2,2],aiAdoption:[-5,5],privateCapex:[-10,10],housingSupply:[-1.5,1.5],deficit:[-10,10],govSpend:[-10,10],igSpreads:[-300,1000],hySpreads:[-800,2000],creditImpulse:[-5,5],termPremium:[-200,300],foreignDemand:[-5,5],dxy:[-30,30],policyCert:[-5,5],ruleOfLaw:[-5,5],conflictIndex:[-5,5],commercialREStress:[-5,5],gridReliability:[-5,5],nearshoring:[-5,5]};
+  const shockTargets={};
+  for (const id of CUSTOM_SHOCK_TARGETS) { const r=fallbackRanges[id]||[-10,10]; shockTargets[id]={id,label:shockTargetLabel(id),minimum:r[0],maximum:r[1],unit:'model_units',economicMeaning:`Structured shock channel for ${shockTargetLabel(id)}.`,allowedOperations:['set'],regionAvailability:['us','eu','uk','jp','cn','em'],version:AI_REGISTRY_VERSION}; }
+  return {registryVersion:AI_REGISTRY_VERSION,sliders,shockTargets,settings:{taylor_rule_enabled:{id:'taylor_rule_enabled',allowedValues:[false,true],version:AI_REGISTRY_VERSION}}};
+}
+
+async function loadSliderRegistry(force=false) {
+  if (aiRegistry && !force) return aiRegistry;
+  try {
+    const r=await fetch(SLIDER_REGISTRY_URL+'?v='+AI_REGISTRY_VERSION,{cache:'no-store'});
+    if (!r.ok) throw new Error('HTTP '+r.status);
+    const data=await r.json();
+    if (!data?.sliders || !data?.shockTargets) throw new Error('Registry structure invalid');
+    const uiIds=CATEGORIES.flatMap(c=>c.sliders.map(x=>x.id));
+    const missing=uiIds.filter(id=>!data.sliders[id]);
+    if (missing.length) throw new Error(`Registry missing ${missing.slice(0,5).join(', ')}`);
+    aiRegistry=data;
+  } catch(e) {
+    console.warn('Using in-page AI registry fallback:',e);
+    aiRegistry=runtimeRegistryFallback();
+  }
+  return aiRegistry;
+}
+
+function compactRegistryPayload(registry) {
+  const sliders=Object.values(registry.sliders||{}).filter(x=>(x.regionAvailability||[]).includes(currentCountry)).map(x=>({
+    id:x.id,label:getCountryLabel(x.id)||x.label,unit:x.unit,minimum:+x.minimum,maximum:+x.maximum,step:+x.step||1,
+    currentValue:+vals[x.id],allowedOperations:x.allowedOperations||['set','increase','decrease'],
+    economicMeaning:x.economicMeaning||x.description||'',downstreamEffects:x.downstreamEffects||[]
+  }));
+  const shockTargets=Object.values(registry.shockTargets||{}).filter(x=>(x.regionAvailability||[]).includes(currentCountry)).map(x=>({
+    id:x.id,label:x.label,unit:x.unit,minimum:+x.minimum,maximum:+x.maximum,economicMeaning:x.economicMeaning||x.description||''
+  }));
+  return {sliders,shockTargets};
+}
+
+async function aiContextPayload() {
   const m=compute();
+  const registry=await loadSliderRegistry();
+  const compact=compactRegistryPayload(registry);
   return {
+    registryVersion:registry.registryVersion||AI_REGISTRY_VERSION,
     country:currentCountry,
+    countryName:(COUNTRY_CONFIGS[currentCountry]||COUNTRY_CONFIGS.us).name,
     horizonYears:timeHorizon,
     shockProjectionMonth,
-    currentMetrics:{gdp:m.gdp,cpi:m.cpi,unemployment:m.unemp,policyRate:vals.ffr,tenYear:m.tenyr,mortgage:m.mortg,recessionRisk:m.recessionRisk},
-    availableTargets:CUSTOM_SHOCK_TARGETS,
-    targetLabels:Object.fromEntries(CUSTOM_SHOCK_TARGETS.map(x=>[x,shockTargetLabel(x)])),
+    taylorRuleEnabled:taylorRuleOn,
+    currentMetrics:{gdp:m.gdp,cpi:m.cpi,unemployment:m.unemp,policyRate:m.taylorFFR??vals.ffr,tenYear:m.tenyr,mortgage:m.mortg,recessionRisk:m.recessionRisk,sp500Index:m.sp500},
+    sliderRegistry:compact.sliders,
+    shockTargets:compact.shockTargets,
     activeShocks:Object.keys(activeEventIds).map(id=>findShock(id)?.label).filter(Boolean)
   };
 }
 
-async function generateAIShock() {
-  const prompt=document.getElementById('ai-shock-prompt')?.value.trim();
-  const endpoint=(document.getElementById('ai-shock-endpoint')?.value||localStorage.getItem('macroscope.ai.endpoint')||'').trim();
-  const st=document.getElementById('ai-shock-status'), out=document.getElementById('ai-shock-result'), btn=document.getElementById('ai-inject-btn');
-  if (!prompt) { toast('Describe the shock first'); return; }
-  if (!endpoint) { if(st)st.textContent='ADD ENDPOINT'; toast('Add the serverless AI endpoint URL'); return; }
-  saveAIEndpoint(endpoint); if(st)st.textContent='GENERATING…'; if(out)out.textContent='Generating structured shock proposal…'; if(btn)btn.disabled=true;
-  try {
-    const resp=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt,context:aiContextPayload()})});
-    if(!resp.ok) throw new Error(`AI endpoint HTTP ${resp.status}`);
-    const payload=await resp.json();
-    const draft=payload.shock||payload;
-    aiShockDraft=validateAIShockDraft(draft);
-    if(out) {
-      const preview=previewAIShockPortfolioImpact(aiShockDraft);
-      out.textContent=JSON.stringify(aiShockDraft,null,2)+(preview?`
+function snapToStep(v,def) {
+  const min=+def.minimum, max=+def.maximum, step=Math.max(1e-9,+def.step||1);
+  let x=Math.max(min,Math.min(max,+v));
+  x=min+Math.round((x-min)/step)*step;
+  const decimals=(String(step).split('.')[1]||'').length;
+  return +Math.max(min,Math.min(max,x)).toFixed(Math.min(decimals+2,8));
+}
 
-PORTFOLIO PREVIEW
-${preview}`:'');
-    }
-    if(btn)btn.disabled=false; if(st)st.textContent='REVIEW REQUIRED';
-  } catch(err) {
-    aiShockDraft=null; if(out)out.textContent='Generation failed: '+(err.message||err); if(st)st.textContent='ERROR';
+function validateAIScenarioCommand(d) {
+  if (!d || typeof d!=='object') throw new Error('Response did not contain a scenario command');
+  const registry=aiRegistry||runtimeRegistryFallback();
+  if (d.region && d.region!==currentCountry) throw new Error(`AI returned region ${d.region}; current simulator region is ${currentCountry}`);
+  const changes=[];
+  for (const c of (Array.isArray(d.sliderChanges)?d.sliderChanges:[]).slice(0,12)) {
+    const def=registry.sliders?.[c.id];
+    if (!def || !(def.regionAvailability||[]).includes(currentCountry)) continue;
+    const op=(def.allowedOperations||[]).includes(c.operation)?c.operation:'set';
+    const raw=+c.value; if(!Number.isFinite(raw)) continue;
+    const delta=Math.abs(raw);
+    const proposed=op==='set'?raw:op==='increase'?(+vals[c.id]+delta):(+vals[c.id]-delta);
+    const finalValue=snapToStep(Number.isFinite(+c.finalValue)?+c.finalValue:proposed,def);
+    changes.push({id:c.id,operation:op,value:op==='set'?finalValue:delta,finalValue,reason:String(c.reason||'').slice(0,500)});
   }
+  const rawShock=d.shock||{};
+  const channels=(Array.isArray(rawShock.channels)?rawShock.channels:[]).filter(c=>registry.shockTargets?.[c.target]&&Number.isFinite(+c.effect)).slice(0,5).map(c=>{
+    const def=registry.shockTargets[c.target];
+    return {target:c.target,effect:Math.max(+def.minimum,Math.min(+def.maximum,+c.effect)),lagMonths:Math.max(0,Math.min(60,Math.round(+c.lagMonths||0))),peakMonth:Math.max(1,Math.min(120,Math.round(+c.peakMonth||1)))};
+  }).filter(c=>Math.abs(c.effect)>1e-12);
+  const type=['temporary','persistent','structural'].includes(rawShock.shockType)?rawShock.shockType:'persistent';
+  const shock={enabled:!!rawShock.enabled&&channels.length>0,label:String(rawShock.label||d.scenarioName||'AI scenario shock').slice(0,120),category:String(rawShock.category||'Custom').slice(0,40),shockType:type,durationMonths:Math.max(1,Math.min(240,Math.round(+rawShock.durationMonths||SHOCK_TYPE_DEFAULTS[type].durationMonths))),peakMonth:Math.max(1,Math.min(120,Math.round(+rawShock.peakMonth||SHOCK_TYPE_DEFAULTS[type].peakMonth))),decayRate:Math.max(0,Math.min(1,+rawShock.decayRate||0)),confidence:Math.max(.05,Math.min(1,+rawShock.confidence||.6)),magnitude:Math.max(.05,Math.min(3,+rawShock.magnitude||1)),rationale:String(rawShock.rationale||'').slice(0,1200),assumptions:Array.isArray(rawShock.assumptions)?rawShock.assumptions.slice(0,6).map(String):[],channels};
+  const tr=d.settings?.taylorRule||{};
+  const settings={taylorRule:{apply:!!tr.apply,enabled:!!tr.enabled,reason:String(tr.reason||'').slice(0,500)}};
+  if(!changes.length&&!shock.enabled&&!settings.taylorRule.apply) throw new Error('AI returned no applicable simulator changes');
+  return {registryVersion:String(d.registryVersion||registry.registryVersion||AI_REGISTRY_VERSION),scenarioName:String(d.scenarioName||'AI counterfactual').slice(0,120),region:currentCountry,confidence:Math.max(.05,Math.min(1,+d.confidence||.6)),rationale:String(d.rationale||'').slice(0,1500),assumptions:Array.isArray(d.assumptions)?d.assumptions.slice(0,8).map(String):[],sliderChanges:changes,settings,shock};
 }
 
-function validateAIShockDraft(d) {
-  if (!d || typeof d!=='object') throw new Error('Response did not contain a shock object');
-  const type=['temporary','persistent','structural'].includes(d.shockType)?d.shockType:'persistent';
-  const channels=(Array.isArray(d.channels)?d.channels:[]).filter(c=>CUSTOM_SHOCK_TARGETS.includes(c.target)&&Number.isFinite(+c.effect)).slice(0,5).map(c=>({
-    target:c.target,effect:+c.effect,lagMonths:Math.max(0,Math.min(60,+c.lagMonths||0)),peakMonth:Math.max(1,Math.min(120,+c.peakMonth||1))
-  }));
-  if(!channels.length) throw new Error('No valid model channels returned');
-  return {
-    label:String(d.label||d.name||'AI-generated shock').slice(0,120),
-    category:String(d.category||'Custom').slice(0,40),
-    shockType:type,
-    durationMonths:Math.max(1,Math.min(240,+d.durationMonths||SHOCK_TYPE_DEFAULTS[type].durationMonths)),
-    peakMonth:Math.max(1,Math.min(120,+d.peakMonth||SHOCK_TYPE_DEFAULTS[type].peakMonth)),
-    decayRate:Math.max(0,Math.min(1,+d.decayRate||SHOCK_TYPE_DEFAULTS[type].decayRate)),
-    confidence:Math.max(.05,Math.min(1,+d.confidence||.6)),
-    magnitude:Math.max(.05,Math.min(3,+d.magnitude||1)),
-    rationale:String(d.rationale||''), assumptions:Array.isArray(d.assumptions)?d.assumptions.slice(0,6):[], channels
-  };
+function aiModelSnapshot() {
+  const m=compute(), pa=portfolioAnalytics(m);
+  return {gdp:+m.gdp.toFixed(3),cpi:+m.cpi.toFixed(3),unemployment:+m.unemp.toFixed(3),policyRate:+(m.taylorFFR??vals.ffr).toFixed(3),tenYear:+m.tenyr.toFixed(3),mortgage:+m.mortg.toFixed(3),sp500Index:+m.sp500.toFixed(2),recessionRisk:+m.recessionRisk.toFixed(2),financialStability:+m.fsi.toFixed(2),consumerConfidence:+m.conf.toFixed(2),portfolioReturn:+pa.scenarioReturn.toFixed(3)};
 }
 
-function injectAIShockDraft() {
-  const d=aiShockDraft; if(!d) return;
+function aiDelta(before,after) { const out={}; for(const k of Object.keys(after)) if(Number.isFinite(+before[k])&&Number.isFinite(+after[k])) out[k]=+(after[k]-before[k]).toFixed(3); return out; }
+
+function withTemporaryAICommand(command,fn) {
+  const savedVals=vals, savedTR=taylorRuleOn, savedActive=activeEventIds, savedSel=selectedShockId;
+  const tempId='__ai_preview__'; let added=false;
+  vals={...vals};
+  for(const c of command.sliderChanges) vals[c.id]=c.finalValue;
+  if(command.settings?.taylorRule?.apply) taylorRuleOn=command.settings.taylorRule.enabled;
+  activeEventIds=JSON.parse(JSON.stringify(activeEventIds));
+  if(command.shock?.enabled){
+    const sh=command.shock; const ev=enrichEventDefinition({id:tempId,label:sh.label,cat:sh.category,pos:true,shockType:sh.shockType,durationMonths:sh.durationMonths,peakMonth:sh.peakMonth,decayRate:sh.decayRate,confidence:sh.confidence,channels:sh.channels,chips:[]});
+    EVENTS.push(ev); added=true; activeEventIds[tempId]={...defaultShockConfig(ev),magnitude:sh.magnitude}; selectedShockId=tempId;
+  }
+  try{return fn();}
+  finally{vals=savedVals;taylorRuleOn=savedTR;activeEventIds=savedActive;selectedShockId=savedSel;if(added){const i=EVENTS.findIndex(x=>x.id===tempId);if(i>=0)EVENTS.splice(i,1);}}
+}
+
+function previewAIScenarioCommand(command) {
+  const before=aiModelSnapshot();
+  const after=withTemporaryAICommand(command,()=>aiModelSnapshot());
+  return {before,after,delta:aiDelta(before,after)};
+}
+
+function formatAIScenarioCommand(command,preview) {
+  const registry=aiRegistry||runtimeRegistryFallback();
+  const lines=[`${command.scenarioName} · confidence ${Math.round(command.confidence*100)}%`,`Registry ${command.registryVersion} · ${(COUNTRY_CONFIGS[currentCountry]||COUNTRY_CONFIGS.us).name}`,''];
+  if(command.sliderChanges.length){ lines.push('SLIDER CHANGES'); for(const c of command.sliderChanges){const def=registry.sliders?.[c.id];lines.push(`• ${def?.label||c.id}: ${(+vals[c.id]).toFixed(3)} → ${c.finalValue} (${c.operation}) — ${c.reason}`);} lines.push(''); }
+  if(command.settings.taylorRule.apply){lines.push(`SETTING · Taylor Rule → ${command.settings.taylorRule.enabled?'ON':'OFF'} — ${command.settings.taylorRule.reason}`,'');}
+  if(command.shock.enabled){lines.push(`TIME-DEPENDENT SHOCK · ${command.shock.label} · ${command.shock.shockType} · ${command.shock.durationMonths} months`);for(const c of command.shock.channels)lines.push(`• ${shockTargetLabel(c.target)} ${formatShockEffect(c.target,c.effect)} · lag ${c.lagMonths}mo · peak M${c.peakMonth}`);lines.push('');}
+  lines.push('MODEL PREVIEW AT CURRENT EVALUATION MONTH');
+  for(const k of ['gdp','cpi','unemployment','policyRate','tenYear','mortgage','sp500Index','recessionRisk','portfolioReturn']){const b=preview.before[k],a=preview.after[k],d=preview.delta[k];lines.push(`• ${k}: ${b} → ${a} (${d>=0?'+':''}${d})`);}
+  if(command.assumptions.length)lines.push('',`ASSUMPTIONS · ${command.assumptions.join(' | ')}`);
+  if(command.rationale)lines.push('',`RATIONALE · ${command.rationale}`);
+  return lines.join('\n');
+}
+
+function clearAIScenarioDraft() {
+  aiScenarioDraft=null;
+  const r=document.getElementById('ai-scenario-result'); if(r)r.textContent='No AI command yet. The manual structured-shock builder remains available below.';
+  const b=document.getElementById('ai-run-btn'); if(b)b.disabled=true;
+  const st=document.getElementById('ai-scenario-status'); if(st)st.textContent='REGISTRY '+AI_REGISTRY_VERSION;
+}
+
+async function generateAIScenario() {
+  const prompt=document.getElementById('ai-scenario-prompt')?.value.trim();
+  const endpoint=(document.getElementById('ai-scenario-endpoint')?.value||localStorage.getItem('macroscope.ai.endpoint')||DEFAULT_AI_ENDPOINT||'').trim();
+  const st=document.getElementById('ai-scenario-status'), out=document.getElementById('ai-scenario-result'), btn=document.getElementById('ai-run-btn');
+  if(!prompt){toast('Describe a counterfactual or paste economic news first');return;}
+  if(!endpoint){if(st)st.textContent='ADD ENDPOINT';toast('Add the Cloudflare Worker URL');return;}
+  saveAIEndpoint(endpoint); if(st)st.textContent='INTERPRETING…'; if(out)out.textContent='Loading registry and converting the question into validated simulator controls…'; if(btn)btn.disabled=true;
+  try{
+    await loadSliderRegistry();
+    const context=await aiContextPayload();
+    const resp=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'scenario',prompt,context})});
+    const payload=await resp.json().catch(()=>({}));
+    if(!resp.ok)throw new Error(payload.error||`AI endpoint HTTP ${resp.status}`);
+    aiScenarioDraft=validateAIScenarioCommand(payload.command||payload);
+    const preview=previewAIScenarioCommand(aiScenarioDraft);
+    if(out)out.textContent=formatAIScenarioCommand(aiScenarioDraft,preview);
+    if(btn)btn.disabled=false; if(st)st.textContent='VALIDATED · REVIEW REQUIRED';
+  }catch(err){aiScenarioDraft=null;if(out)out.textContent='Scenario interpretation failed: '+(err.message||err);if(st)st.textContent='ERROR';}
+}
+
+function injectAIScenarioShock(sh) {
+  if(!sh?.enabled)return null;
   const id='ai_'+(++customEventCount)+'_'+Date.now().toString(36);
-  const gdp=d.channels.find(c=>c.target==='gdpA')?.effect||0, cpi=d.channels.find(c=>c.target==='cpiA')?.effect||0, sp=d.channels.find(c=>c.target==='spA')?.effect||0;
+  const gdp=sh.channels.find(c=>c.target==='gdpA')?.effect||0,cpi=sh.channels.find(c=>c.target==='cpiA')?.effect||0,sp=sh.channels.find(c=>c.target==='spA')?.effect||0;
   const directional=gdp||sp/10||-cpi;
-  const ev=enrichEventDefinition({id,label:d.label,cat:d.category,pos:directional>=0,shockType:d.shockType,durationMonths:d.durationMonths,peakMonth:d.peakMonth,decayRate:d.decayRate,confidence:d.confidence,channels:d.channels,chips:d.channels.slice(0,3).map(c=>`${shockTargetLabel(c.target)} ${formatShockEffect(c.target,c.effect)}`)});
-  EVENTS.push(ev); activeEventIds[id]={...defaultShockConfig(ev),magnitude:d.magnitude}; selectedShockId=id;
+  const ev=enrichEventDefinition({id,label:sh.label,cat:sh.category,pos:directional>=0,shockType:sh.shockType,durationMonths:sh.durationMonths,peakMonth:sh.peakMonth,decayRate:sh.decayRate,confidence:sh.confidence,channels:sh.channels,chips:sh.channels.slice(0,3).map(c=>`${shockTargetLabel(c.target)} ${formatShockEffect(c.target,c.effect)}`)});
+  EVENTS.push(ev); activeEventIds[id]={...defaultShockConfig(ev),magnitude:sh.magnitude}; selectedShockId=id;
   const grid=document.getElementById(ev.pos?'positive-shock-grid':'negative-shock-grid'); if(grid)grid.insertAdjacentHTML('beforeend',buildEventCard(ev));
-  render(); renderEventLog(); commitChange(); toast('AI shock injected · Portfolio Lab stress results updated');
+  return id;
 }
 
+async function runAIScenarioDraft() {
+  const command=aiScenarioDraft; if(!command)return;
+  const out=document.getElementById('ai-scenario-result'),st=document.getElementById('ai-scenario-status');
+  const endpoint=(document.getElementById('ai-scenario-endpoint')?.value||localStorage.getItem('macroscope.ai.endpoint')||DEFAULT_AI_ENDPOINT||'').trim();
+  const before=aiModelSnapshot();
+  for(const c of command.sliderChanges)vals[c.id]=c.finalValue;
+  if(command.settings.taylorRule.apply)taylorRuleOn=command.settings.taylorRule.enabled;
+  injectAIScenarioShock(command.shock);
+  syncSliderDomFromVals(); syncTaylorRuleUi(); render(); renderEventLog(); commitChange();
+  const after=aiModelSnapshot();
+  const run={command,before,after,delta:aiDelta(before,after),executedAt:new Date().toISOString(),evaluationMonth:shockProjectionMonth}; lastAIScenarioRun=run;
+  if(out)out.textContent=`SCENARIO EXECUTED\n${formatAIScenarioCommand(command,{before,after,delta:run.delta})}\n\nAI EXPLANATION\nGenerating explanation from simulator outputs…`;
+  if(st)st.textContent='SCENARIO RUN · EXPLAINING…';
+  if(!endpoint){if(st)st.textContent='SCENARIO RUN';return;}
+  try{
+    const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'analyst',prompt:'Explain the baseline-to-counterfactual result. Identify the strongest causal channels, countervailing forces, and assumptions. Do not introduce facts that are not in the supplied context.',context:{model:'MACROSCOPE v7 counterfactual',country:currentCountry,evaluationMonth:shockProjectionMonth,command,before,after,delta:run.delta,currentState:analystContextPayload()}})});
+    const data=await r.json().catch(()=>({})); if(!r.ok)throw new Error(data.error||`AI endpoint HTTP ${r.status}`);
+    const answer=String(data.answer||'').trim(); if(!answer)throw new Error('Empty analyst response');
+    if(out)out.textContent=`SCENARIO EXECUTED\n${formatAIScenarioCommand(command,{before,after,delta:run.delta})}\n\nAI EXPLANATION\n${answer}`;
+    if(st)st.textContent='SCENARIO RUN · GROUNDED EXPLANATION';
+  }catch(e){if(out)out.textContent+=`\n\nExplanation request failed: ${e.message||e}`;if(st)st.textContent='SCENARIO RUN · EXPLANATION FAILED';}
+}
 
 // ── V6 PORTFOLIO LAB ─────────────────────────────────────────────
 function savePortfolioState(){
@@ -3465,14 +3616,14 @@ function renderScenarioTreeSummary(){const el=document.getElementById('tree-summ
 
 // ── V6 ASK MACROSCOPE ────────────────────────────────────────────
 function topModelDrivers(m,n=6){return Object.entries(m.gdpContributions||{}).filter(([k])=>k!=='baseline').sort((a,b)=>Math.abs(b[1])-Math.abs(a[1])).slice(0,n).map(([name,value])=>({name,value:+value.toFixed(3)}));}
-function analystContextPayload(){const m=compute(),pa=portfolioAnalytics(m),tree=scenarioTreeWeighted();return {model:'MACROSCOPE v6.0',country:currentCountry,horizonYears:timeHorizon,projectionMonth:shockProjectionMonth,metrics:{gdp:m.gdp,cpi:m.cpi,unemployment:m.unemp,tenYear:m.tenyr,mortgage:m.mortg,sp500Index:m.sp500,financialStability:m.fsi,recessionRisk:m.recessionRisk,consumerConfidence:m.conf,effectiveDeficit:m.effectiveDeficit},topGdpDrivers:topModelDrivers(m),activeScenarioShocks:(m.shockReport?.eventSummaries||[]).map(x=>({label:x.label,path:+x.path?.toFixed?.(2)||x.path,activeChannels:x.activeChannels})),releaseSignals:(m.calendarShockReport?.activeShocks||[]).slice(0,5).map(x=>({label:x.label,surpriseZ:x.surpriseZ,path:x.path})),portfolio:{value:portfolioValue,scenarioReturn:pa.scenarioReturn,volatilityProxy:pa.volProxy,holdings:pa.rows.map(r=>({symbol:r.symbol,weight:r.weight,scenarioReturn:r.ret,contribution:r.contribution}))},scenarioTree:tree};}
+function analystContextPayload(){const m=compute(),pa=portfolioAnalytics(m),tree=scenarioTreeWeighted();return {model:'MACROSCOPE v7.0',country:currentCountry,horizonYears:timeHorizon,projectionMonth:shockProjectionMonth,metrics:{gdp:m.gdp,cpi:m.cpi,unemployment:m.unemp,tenYear:m.tenyr,mortgage:m.mortg,sp500Index:m.sp500,financialStability:m.fsi,recessionRisk:m.recessionRisk,consumerConfidence:m.conf,effectiveDeficit:m.effectiveDeficit},topGdpDrivers:topModelDrivers(m),activeScenarioShocks:(m.shockReport?.eventSummaries||[]).map(x=>({label:x.label,path:+x.path?.toFixed?.(2)||x.path,activeChannels:x.activeChannels})),releaseSignals:(m.calendarShockReport?.activeShocks||[]).slice(0,5).map(x=>({label:x.label,surpriseZ:x.surpriseZ,path:x.path})),portfolio:{value:portfolioValue,scenarioReturn:pa.scenarioReturn,volatilityProxy:pa.volProxy,holdings:pa.rows.map(r=>({symbol:r.symbol,weight:r.weight,scenarioReturn:r.ret,contribution:r.contribution}))},scenarioTree:tree};}
 function buildAnalystSection(){return `<div class="section" id="sec-analyst"><div class="sec-hdr"><div class="sec-title">Ask MACROSCOPE</div><div class="sec-desc">Use an LLM as an explanation layer over the simulator—not as a replacement for the equations. Questions are grounded in the current model state, active shocks, release signals, scenario tree and portfolio.</div></div><div class="analyst-layout"><div class="analyst-box"><div class="ai-box-title">Question</div><textarea id="analyst-prompt" class="analyst-prompt" placeholder="Why is inflation rising in this scenario? Which assumptions are driving the portfolio drawdown? What would have to change to avoid recession without reigniting inflation?"></textarea><div class="quick-prompts"><button class="btn" onclick="setAnalystPrompt('Explain the current macro scenario and identify the three most important drivers.')">Explain scenario</button><button class="btn" onclick="setAnalystPrompt('What is driving inflation, and which changes would reduce it with the least damage to growth?')">Inflation drivers</button><button class="btn" onclick="setAnalystPrompt('Explain the current portfolio risk and identify the holdings most sensitive to this scenario.')">Portfolio risk</button><button class="btn" onclick="setAnalystPrompt('What assumptions could invalidate this outlook? Distinguish model uncertainty from real-world uncertainty.')">Challenge outlook</button></div><input id="analyst-endpoint" class="analyst-endpoint" placeholder="Serverless AI endpoint (same Worker as Shock Studio)" onchange="saveAIEndpoint(this.value)"><div class="analyst-toolbar" style="margin-top:8px"><button class="btn primary" onclick="askMacroscope()">Ask MACROSCOPE</button><button class="btn" onclick="localMacroscopeExplain()">Local model summary</button><span id="analyst-status" class="ai-status">Backend optional</span></div></div><div class="analyst-box"><div class="ai-box-title">Analyst answer</div><div class="analyst-answer" id="analyst-answer">Ask a question, or use Local model summary for an explanation that requires no external LLM.</div></div></div><div class="portfolio-panel" style="margin-top:10px"><div class="ai-box-title">Current context sent to the analyst</div><div id="analyst-snapshot" class="news-meta-line" style="line-height:1.7"></div></div><div class="portfolio-note">The analyst receives simulator outputs and assumptions, not privileged market information. It should describe model logic, uncertainty and scenario implications rather than present generated statements as observed facts.</div></div>`;}
 function setAnalystPrompt(t){const el=document.getElementById('analyst-prompt');if(el){el.value=t;el.focus();}}
-function loadAIEndpoint(){const v=localStorage.getItem('macroscope.ai.endpoint')||'';const a=document.getElementById('ai-shock-endpoint');if(a&&!a.value)a.value=v;const b=document.getElementById('analyst-endpoint');if(b&&!b.value)b.value=v;}
+function loadAIEndpoint(){const v=localStorage.getItem('macroscope.ai.endpoint')||DEFAULT_AI_ENDPOINT||'';const a=document.getElementById('ai-scenario-endpoint');if(a&&!a.value)a.value=v;const b=document.getElementById('analyst-endpoint');if(b&&!b.value)b.value=v;}
 function renderAnalystSnapshot(m){const el=document.getElementById('analyst-snapshot');if(!el)return;const pa=portfolioAnalytics(m),drivers=topModelDrivers(m,4);el.innerHTML=`GDP <b>${m.gdp.toFixed(1)}%</b> · CPI <b>${m.cpi.toFixed(1)}%</b> · 10yr <b>${m.tenyr.toFixed(2)}%</b> · Recession score <b>${m.recessionRisk.toFixed(0)}</b> · Portfolio <b>${pa.scenarioReturn>=0?'+':''}${pa.scenarioReturn.toFixed(1)}%</b><br>Top GDP drivers: ${drivers.map(x=>`${escapeHtml(x.name)} ${x.value>=0?'+':''}${x.value.toFixed(2)}pp`).join(' · ')}`;}
 function localMacroscopeText(){const m=compute(),pa=portfolioAnalytics(m),d=topModelDrivers(m,5),shockCount=Object.keys(activeEventIds).length,tree=scenarioTreeWeighted();const direction=m.gdp<0?'recessionary':m.gdp<1.5?'weak-growth':m.gdp>3.5?'high-growth':'moderate-growth';return `MACROSCOPE currently describes a ${direction} regime: GDP ${m.gdp.toFixed(1)}%, CPI ${m.cpi.toFixed(1)}%, 10-year Treasury ${m.tenyr.toFixed(2)}%, and a recession-risk score of ${m.recessionRisk.toFixed(0)}/100.\n\nThe largest GDP contributions are ${d.map(x=>`${x.name} (${x.value>=0?'+':''}${x.value.toFixed(2)}pp)`).join(', ')}. ${shockCount?`${shockCount} user scenario shock${shockCount===1?' is':'s are'} active at month ${shockProjectionMonth}.`:'No user-created scenario shock is active.'}\n\nThe current portfolio stress result is ${pa.scenarioReturn>=0?'+':''}${pa.scenarioReturn.toFixed(1)}% on a $${portfolioValue.toLocaleString()} portfolio, with an approximate volatility proxy of ${pa.volProxy.toFixed(1)}%. The largest portfolio contributions are ${pa.rows.slice().sort((a,b)=>Math.abs(b.contribution)-Math.abs(a.contribution)).slice(0,3).map(r=>`${r.symbol} ${r.contribution>=0?'+':''}${r.contribution.toFixed(2)}pp`).join(', ')}.${tree?`\n\nThe probability-weighted scenario tree implies GDP ${tree.gdp.toFixed(2)}%, CPI ${tree.cpi.toFixed(2)}%, and portfolio return ${tree.portfolioReturn>=0?'+':''}${tree.portfolioReturn.toFixed(1)}%.`:''}\n\nThese are model outputs based on transparent scenario priors; they are not forecasts with statistically estimated confidence intervals.`;}
 function localMacroscopeExplain(){const out=document.getElementById('analyst-answer');if(out)out.textContent=localMacroscopeText();const st=document.getElementById('analyst-status');if(st)st.textContent='LOCAL MODEL';}
-async function askMacroscope(){const prompt=document.getElementById('analyst-prompt')?.value.trim();const endpoint=(document.getElementById('analyst-endpoint')?.value||localStorage.getItem('macroscope.ai.endpoint')||'').trim();const out=document.getElementById('analyst-answer'),st=document.getElementById('analyst-status');if(!prompt){toast('Ask a question first');return;}if(!endpoint){localMacroscopeExplain();toast('No endpoint configured · showing local model summary');return;}saveAIEndpoint(endpoint);if(st)st.textContent='THINKING…';if(out)out.textContent='Analyzing current simulator state…';try{const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'analyst',prompt,context:analystContextPayload()})});if(!r.ok)throw new Error(`AI endpoint HTTP ${r.status}`);const data=await r.json();const answer=String(data.answer||data.text||'').trim();if(!answer)throw new Error('Empty analyst response');analystHistory.push({prompt,answer,at:new Date().toISOString()});if(out)out.textContent=answer;if(st)st.textContent='GROUNDED IN MODEL STATE';}catch(e){if(out)out.textContent=`Analyst request failed: ${e.message||e}\n\n${localMacroscopeText()}`;if(st)st.textContent='LOCAL FALLBACK';}}
+async function askMacroscope(){const prompt=document.getElementById('analyst-prompt')?.value.trim();const endpoint=(document.getElementById('analyst-endpoint')?.value||localStorage.getItem('macroscope.ai.endpoint')||DEFAULT_AI_ENDPOINT||'').trim();const out=document.getElementById('analyst-answer'),st=document.getElementById('analyst-status');if(!prompt){toast('Ask a question first');return;}if(!endpoint){localMacroscopeExplain();toast('No endpoint configured · showing local model summary');return;}saveAIEndpoint(endpoint);if(st)st.textContent='THINKING…';if(out)out.textContent='Analyzing current simulator state…';try{const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'analyst',prompt,context:analystContextPayload()})});if(!r.ok)throw new Error(`AI endpoint HTTP ${r.status}`);const data=await r.json();const answer=String(data.answer||data.text||'').trim();if(!answer)throw new Error('Empty analyst response');analystHistory.push({prompt,answer,at:new Date().toISOString()});if(out)out.textContent=answer;if(st)st.textContent='GROUNDED IN MODEL STATE';}catch(e){if(out)out.textContent=`Analyst request failed: ${e.message||e}\n\n${localMacroscopeText()}`;if(st)st.textContent='LOCAL FALLBACK';}}
 
 // ── EVENTS & STRUCTURED SHOCKS ───────────────────────────────────
 let customEventCount = 0;
@@ -4020,7 +4171,7 @@ function renderPolChart(m) {
 // ── EXPORT / RESET ───────────────────────────────────────────────
 function exportJSON() {
   const m    = compute();
-  const data = { metadata:{ name:document.getElementById('sc-name').value, timestamp:new Date().toISOString(), version:'MACROSCOPE v6.0', shockProjectionMonth, officialSyncEnabled, officialDataGeneratedAt:officialData?.generatedAt||null, surpriseEngineGeneratedAt:surpriseEngine?.generatedAt||null, activeReleaseSignals:compute().calendarShockReport?.activeShocks?.length||0 }, inputs:vals, activeShocks:JSON.parse(JSON.stringify(activeEventIds)), customShockDefinitions:serializeCustomEvents(), shockAttribution:m.shockReport, releaseShockAttribution:m.calendarShockReport, outputs:{ gdp:m.gdp, cpi:m.cpi, tfp:m.tfp, tenyr:m.tenyr, twoyr:m.twoyr, thirtyr:m.thirtyr, mortgage:m.mortg, yieldSpread:m.yldSprd, housingAffordability:m.housingAff, sp500:m.sp500, consumerConfidence:m.conf, deficitPctGDP:m.defAdj, dollar:m.dollarAdj } };
+  const data = { metadata:{ name:document.getElementById('sc-name').value, timestamp:new Date().toISOString(), version:'MACROSCOPE v7.0', shockProjectionMonth, officialSyncEnabled, officialDataGeneratedAt:officialData?.generatedAt||null, surpriseEngineGeneratedAt:surpriseEngine?.generatedAt||null, activeReleaseSignals:compute().calendarShockReport?.activeShocks?.length||0 }, inputs:vals, activeShocks:JSON.parse(JSON.stringify(activeEventIds)), customShockDefinitions:serializeCustomEvents(), shockAttribution:m.shockReport, releaseShockAttribution:m.calendarShockReport, outputs:{ gdp:m.gdp, cpi:m.cpi, tfp:m.tfp, tenyr:m.tenyr, twoyr:m.twoyr, thirtyr:m.thirtyr, mortgage:m.mortg, yieldSpread:m.yldSprd, housingAffordability:m.housingAff, sp500:m.sp500, consumerConfidence:m.conf, deficitPctGDP:m.defAdj, dollar:m.dollarAdj } };
   const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
   const a    = document.createElement('a');
   a.href     = URL.createObjectURL(blob);
@@ -4050,6 +4201,7 @@ function resetAll() {
   commitChange();
 }
 let pendingPdfChanges = [];
+let pendingPdfScenarioCommand = null;
 
 function openPdfModal() {
   document.getElementById('pdf-modal-overlay').classList.add('open');
@@ -4060,6 +4212,7 @@ function closePdfModal() {
 }
 function resetPdfModal() {
   pendingPdfChanges = [];
+  pendingPdfScenarioCommand = null;
   document.getElementById('pdf-drop-zone').classList.remove('drag-over');
   document.getElementById('pdf-status').style.display = 'none';
   document.getElementById('pdf-results').style.display = 'none';
@@ -4099,105 +4252,50 @@ function animateProgress(targetPct, duration) {
   requestAnimationFrame(step);
 }
 
-async function processPdfFile(file) {
-  resetPdfModal();
-  // Show progress
-  const status = document.getElementById('pdf-status');
-  status.style.display = 'block';
-  document.getElementById('ps-filename').textContent = file.name;
-  animateProgress(30, 600);
-
-  // Convert PDF to base64
-  const base64 = await new Promise((res, rej) => {
-    const reader = new FileReader();
-    reader.onload = () => res(reader.result.split(',')[1]);
-    reader.onerror = () => rej(new Error('Failed to read file'));
-    reader.readAsDataURL(file);
-  });
-
-  animateProgress(55, 800);
-
-  // Build slider reference for prompt
-  const sliderRef = CATEGORIES.flatMap(cat =>
-    cat.sliders.map(sl => `  ${sl.id} (${sl.label}): min=${sl.min}, max=${sl.max}, current=${vals[sl.id]}`)
-  ).join('\n');
-
-  const systemPrompt = `You are an expert macroeconomist analyzing news articles and their implications for a U.S. economic outlook simulator.
-
-The simulator has these sliders (id: label, min-max, current value):
-${sliderRef}
-
-You must respond with ONLY valid JSON, no markdown, no explanation outside the JSON.`;
-
-  const userPrompt = `Analyze this document. Identify the key economic news and implications, then recommend specific slider adjustments for the simulator.
-
-Return ONLY this JSON structure (no markdown fences):
-{
-  "headline": "One sentence summary of the article",
-  "summary": "2-3 sentence economic interpretation of what this means for the US economy",
-  "changes": [
-    {
-      "id": "slider_id",
-      "newValue": number,
-      "reason": "Brief explanation of why this slider should change based on the article"
-    }
-  ]
+async function extractPdfText(file,maxChars=10000) {
+  if (!window.pdfjsLib) throw new Error('PDF text reader failed to load. Check the PDF.js CDN connection.');
+  window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  const bytes=await file.arrayBuffer();
+  const pdf=await window.pdfjsLib.getDocument({data:bytes}).promise;
+  let text='';
+  const pages=Math.min(pdf.numPages,30);
+  for(let i=1;i<=pages&&text.length<maxChars;i++){
+    const page=await pdf.getPage(i); const content=await page.getTextContent();
+    const line=content.items.map(x=>x.str||'').join(' ').replace(/\s+/g,' ').trim();
+    if(line)text+=`\n[Page ${i}] ${line}`;
+  }
+  return text.slice(0,maxChars).trim();
 }
 
-Rules:
-- Only include sliders where the article gives clear, direct evidence for a change
-- newValue must be within the slider's min-max range
-- Be precise: if the article says oil is at $95, set oil=95 exactly
-- Focus on the most important 3-10 sliders, not every slider
-- Changes should reflect what the article describes, not what you wish would happen`;
-
+async function processPdfFile(file) {
+  resetPdfModal();
+  const status=document.getElementById('pdf-status');
+  status.style.display='block';
+  document.getElementById('ps-filename').textContent=file.name;
+  animateProgress(20,400);
   try {
-    animateProgress(70, 1200);
-
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system: systemPrompt,
-        messages: [{
-          role: 'user',
-          content: [
-            {
-              type: 'document',
-              source: { type: 'base64', media_type: 'application/pdf', data: base64 }
-            },
-            { type: 'text', text: userPrompt }
-          ]
-        }]
-      })
-    });
-
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      throw new Error(err.error?.message || `API error ${response.status}`);
-    }
-
-    animateProgress(90, 400);
-
-    const data = await response.json();
-    const rawText = data.content?.find(b => b.type === 'text')?.text || '';
-
-    // Strip any accidental markdown fences
-    const cleaned = rawText.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim();
-    let parsed;
-    try {
-      parsed = JSON.parse(cleaned);
-    } catch {
-      throw new Error('Could not parse AI response. Raw: ' + rawText.slice(0, 200));
-    }
-
-    animateProgress(100, 200);
-    setTimeout(() => renderPdfResults(parsed), 300);
-
-  } catch (err) {
-    showPdfError(err.message || 'Unknown error calling the API.');
+    const endpoint=(localStorage.getItem('macroscope.ai.endpoint')||DEFAULT_AI_ENDPOINT||'').trim();
+    if(!endpoint) throw new Error('Configure the Cloudflare Worker URL in AI Counterfactual Studio or Ask MACROSCOPE before analyzing a PDF.');
+    const text=await extractPdfText(file,10000);
+    if(!text||text.length<80) throw new Error('Could not extract enough text from this PDF. Scanned/image-only PDFs need OCR before upload.');
+    animateProgress(55,500);
+    await loadSliderRegistry();
+    const context=await aiContextPayload();
+    const prompt=`Analyze the following PDF text as economic or financial information. Treat claims as document content, not independently verified facts. Translate only well-supported implications into the smallest defensible set of MACROSCOPE slider changes and, if the document describes a temporary or lagged event, a structured shock. Preserve uncertainty and do not invent missing numbers.\n\nFILE: ${file.name}\n\nDOCUMENT EXCERPT:\n${text}`;
+    animateProgress(72,500);
+    const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'scenario',prompt,context})});
+    const payload=await response.json().catch(()=>({}));
+    if(!response.ok)throw new Error(payload.error||`AI endpoint HTTP ${response.status}`);
+    const command=validateAIScenarioCommand(payload.command||payload);
+    pendingPdfScenarioCommand=command;
+    const extra=[];
+    if(command.shock.enabled)extra.push(`${command.shock.shockType} shock: ${command.shock.label}`);
+    if(command.settings.taylorRule.apply)extra.push(`Taylor Rule → ${command.settings.taylorRule.enabled?'ON':'OFF'}`);
+    const parsed={headline:command.scenarioName||'Document scenario',summary:`${command.rationale||'AI-generated counterfactual interpretation.'}${extra.length?` Additional controls: ${extra.join(' · ')}.`:''}`,changes:command.sliderChanges.map(c=>({id:c.id,newValue:c.finalValue,reason:c.reason}))};
+    animateProgress(100,250);
+    setTimeout(()=>renderPdfResults(parsed),220);
+  } catch(err) {
+    showPdfError(err.message||'Unknown error analyzing the PDF.');
   }
 }
 
@@ -4216,8 +4314,9 @@ function renderPdfResults(parsed) {
     return sl && typeof c.newValue === 'number' && !isNaN(c.newValue);
   });
 
-  if (!changes.length) {
-    list.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:8px;">No specific slider changes identified in this article.</div>';
+  const hasExtraControls = !!pendingPdfScenarioCommand?.shock?.enabled || !!pendingPdfScenarioCommand?.settings?.taylorRule?.apply;
+  if (!changes.length && !hasExtraControls) {
+    list.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:8px;">No specific simulator changes identified in this document.</div>';
     document.getElementById('pr-apply-btn').style.display = 'none';
     pendingPdfChanges = [];
     return;
@@ -4225,8 +4324,9 @@ function renderPdfResults(parsed) {
 
   pendingPdfChanges = changes;
   document.getElementById('pr-apply-btn').style.display = 'block';
+  if (!changes.length && hasExtraControls) list.innerHTML = '<div style="color:var(--text-dim);font-size:12px;padding:8px;">No direct slider changes. The approved command contains a structured shock and/or Taylor Rule setting.</div>';
 
-  list.innerHTML = changes.map(c => {
+  if (changes.length) list.innerHTML = changes.map(c => {
     const sl = getSliderDef(c.id);
     if (!sl) return '';
     const oldVal = vals[c.id];
@@ -4245,29 +4345,24 @@ function renderPdfResults(parsed) {
 }
 
 function applyPdfChanges() {
+  const command=pendingPdfScenarioCommand;
+  if(command){
+    for(const c of command.sliderChanges||[]) vals[c.id]=c.finalValue;
+    if(command.settings?.taylorRule?.apply)taylorRuleOn=command.settings.taylorRule.enabled;
+    injectAIScenarioShock(command.shock);
+    syncSliderDomFromVals(); syncTaylorRuleUi(); render(); renderEventLog(); commitChange();
+    closePdfModal();
+    const mbar=document.getElementById('mbar'); if(mbar){mbar.style.transition='opacity 0.15s';mbar.style.opacity='0.3';setTimeout(()=>{mbar.style.opacity='1';},200);}
+    toast('Document-derived scenario applied after registry validation');
+    return;
+  }
   if (!pendingPdfChanges.length) return;
   for (const c of pendingPdfChanges) {
-    const sl = getSliderDef(c.id);
-    if (!sl) continue;
-    const newVal = Math.max(sl.min, Math.min(sl.max, c.newValue));
-    vals[c.id] = newVal;
-    const rangeEl = document.getElementById('r-' + c.id);
-    if (rangeEl) rangeEl.value = newVal;
-    const valEl = document.getElementById('v-' + c.id);
-    if (valEl) valEl.textContent = sl.fmt(newVal);
+    const sl = getSliderDef(c.id); if (!sl) continue;
+    vals[c.id] = Math.max(sl.min, Math.min(sl.max, c.newValue));
   }
-  refreshAllModified();
-  render();
-  closePdfModal();
-  commitChange();
-
-  // Flash the metrics bar to show changes applied
-  const mbar = document.getElementById('mbar');
-  mbar.style.transition = 'opacity 0.15s';
-  mbar.style.opacity = '0.3';
-  setTimeout(() => { mbar.style.opacity = '1'; }, 200);
+  syncSliderDomFromVals(); render(); closePdfModal(); commitChange();
 }
-
 
 // ── 2026 Q2 CALIBRATION ──────────────────────────────────────────
 // Estimated Q2 2026 baseline values (based on trend extrapolation to mid-2026)

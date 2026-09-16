@@ -11,6 +11,40 @@ It combines a large structural scenario model with regularly refreshed economic 
 > **Important:** This project is an educational and analytical model. Its forecasts, scenario outputs, recession-risk scores, shock effects, and transmission coefficients are not official forecasts, investment advice, policy recommendations, or causal estimates.
 
 
+
+## v7 AI counterfactual layer
+
+The v7 extension turns the optional LLM layer into a constrained controller for MACROSCOPE rather than a free-form chatbot.
+
+```text
+Natural-language question / economic news
+        ↓
+Groq GPT-OSS 20B interprets the request
+        ↓
+Strict JSON scenario command
+        ↓
+Local slider-registry validation
+        ↓
+MACROSCOPE equations run the counterfactual
+        ↓
+Charts, portfolio stress results, and model outputs update
+        ↓
+The LLM explains the simulator-generated result
+```
+
+Key safeguards and additions:
+
+- `data/slider-registry.json` contains **88 UI sliders**, their ranges, steps, units, economic meaning, region availability, allowed operations, downstream effects, source, and registry version.
+- The registry also defines the structured shock channels and the Taylor Rule setting available to the AI layer.
+- The Cloudflare Worker defaults to **Groq `openai/gpt-oss-20b`** and requests strict JSON-Schema output.
+- The model cannot directly manipulate the DOM, run arbitrary browser code, or invent new slider IDs.
+- The browser performs a second validation pass, previews the result, and requires an explicit **Run validated scenario** action.
+- Temporary and lagged events use the existing structured-shock engine; persistent policy/state changes use normal slider changes.
+- After execution, the Worker receives the baseline and counterfactual simulator outputs and provides a grounded explanation.
+- PDF/news interpretation now routes through the same Worker; no LLM provider key is exposed in browser JavaScript.
+
+See `V7_AI_COUNTERFACTUAL.md` and `worker/README.md` for setup.
+
 ## v5 intelligence layer
 
 The v5 overhaul adds two optional live-intelligence features while preserving the static-site model:
@@ -19,7 +53,7 @@ The v5 overhaul adds two optional live-intelligence features while preserving th
 - **AI Shock Studio**: a Duck.ai-style natural-language scenario composer that turns a user prompt or news headline into a reviewable structured shock. It requires an optional serverless bridge under `worker/` so API credentials never enter the static site.
 - **Automatic Pages deployment**: every push to `main` deploys automatically, and the hourly scheduled run refreshes data and redeploys without manual intervention.
 
-The AI layer never injects a shock automatically: generated coefficients are validated in the browser and require an explicit **Inject approved draft** click.
+The original v5 AI Shock Studio has been superseded by the v7 counterfactual controller. AI-generated commands remain reviewable and are never applied until the user explicitly runs the validated scenario.
 
 ## What it does
 
@@ -43,7 +77,7 @@ The project brings three related tools into one interface:
 
 ### Scenario simulator
 
-- More than **70 adjustable inputs**
+- **88 adjustable inputs**
 - **1-year, 3-year, and 10-year** forecast horizons
 - Monetary policy and interest rates
 - Fiscal policy and public debt
@@ -413,3 +447,15 @@ Transparent assumptions are a core design goal of the project.
 - **Automatic Pages refresh/deploy:** the v5 GitHub Actions workflow remains the deployment path; pushes and the hourly schedule deploy without manual Pages publishing.
 
 See `V6_OVERHAUL.md` for details and caveats.
+
+
+## MACROSCOPE v7 additions
+
+- **AI Counterfactual Studio:** natural-language questions become validated slider changes and/or structured shock commands.
+- **Central slider registry:** 88 controls plus shock channels and Taylor Rule metadata are versioned in `data/slider-registry.json`.
+- **Strict structured output:** the Worker is configured for Groq GPT-OSS 20B JSON Schema mode.
+- **Automatic baseline → scenario explanation:** after MACROSCOPE runs the command, the LLM explains the simulator outputs rather than generating the numerical result itself.
+- **News and PDF → scenario:** headlines and extracted PDF text can be interpreted through the same constrained command path.
+- **No browser API secrets:** provider credentials remain only in the Cloudflare Worker secret store.
+
+See `V7_AI_COUNTERFACTUAL.md` for the architecture and deployment checklist.
