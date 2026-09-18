@@ -1,0 +1,25 @@
+MACROSCOPE V8.2 COMMAND CENTER
+
+FOUNDATION
+- Unified prompt router across Ctrl+K and Ask MACROSCOPE.
+- New condensed Home dashboard with legacy detail toggle.
+
+CONSOLIDATION
+- Scenario Lab grouped into Economy; Monetary & Rates; Fiscal; Labor; Housing & Credit;
+  Trade & FX; Energy & Commodities; Geopolitics; Advanced & Tools.
+- Workspace-aware utility rail.
+
+RELIABILITY
+- Local navigation/search/save/undo/redo/reset bypass Groq.
+- Scenario prompts are always staged in Counterfactual Studio before application.
+- Current-data prompts remain sourced/review-gated.
+- System strip shows Model / Groq / Data separately.
+
+LIVE DATA
+- Clickable status modal.
+- Worker status exposes AI configuration and revision metadata.
+- Installer adds localhost CORS and 30-minute weekday checks while preserving D1 UUID.
+
+UX
+- Local command search includes controls, official observations, saved scenarios, branches, and sections.
+- Larger headline metrics and calmer panel hierarchy.

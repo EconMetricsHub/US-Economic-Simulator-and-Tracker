@@ -468,13 +468,7 @@ export default {
           return json(live, live.officialData ? 200 : (live.status === 'unconfigured' ? 503 : 200));
         }
         const dataStatus = await getLiveDataStatus(env);
-        return json({
-          ok:true,
-          service:'MACROSCOPE AI + Live Data Gateway',
-          model:env.LLM_MODEL || 'openai/gpt-oss-20b',
-          ai:{configured:!!env.LLM_API_KEY, provider:'groq', model:env.LLM_MODEL || 'openai/gpt-oss-20b'},
-          data:dataStatus
-        });
+        return json({ok:true, service:'MACROSCOPE AI + Live Data Gateway', model:env.LLM_MODEL || 'openai/gpt-oss-20b', data:dataStatus});
       } catch (e) {
         return json({error:String(e?.message || e)},500);
       }

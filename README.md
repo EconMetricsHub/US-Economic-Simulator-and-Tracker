@@ -464,3 +464,7 @@ See `V6_OVERHAUL.md` for details and caveats.
 - **No browser API secrets:** provider credentials remain only in the Cloudflare Worker secret store.
 
 See `V7_AI_COUNTERFACTUAL.md` for the architecture and deployment checklist.
+
+## Live data backend patch
+
+The Worker now includes an optional Cloudflare D1-backed **MACROSCOPE Live Data Gateway**. When configured, current official observations refresh on Worker Cron Triggers and the browser reads them from `/api/data/latest`; the existing generated economic-calendar JSON remains as a fallback and for richer release/surprise history. See `worker/LIVE_DATA_SETUP.md`.

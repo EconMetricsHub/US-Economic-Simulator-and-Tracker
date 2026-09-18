@@ -73,3 +73,16 @@ Commit that change to the GitHub Pages publishing branch. Visitors will then use
 
 `ALLOWED_ORIGIN` is enforced on browser POST requests as well as returned in CORS headers. For the current GitHub Pages deployment use `https://econmetricshub.github.io` (origin only; do not include the repository path). During local development you can temporarily add a second comma-separated origin such as `http://localhost:8000`, then remove it for production.
 
+
+## Live Data Gateway (D1 + Cron)
+
+This patch adds a persistent latest-data layer without changing the simulator equations or the Groq scenario route.
+
+- `src/live-data.js` owns the approved series catalog and data transport.
+- FRED API + `FRED_API_KEY` is the preferred source.
+- Public FRED graph CSV is a keyless continuity fallback.
+- A D1 binding named `MACROSCOPE_DB` stores latest values, history, revisions, and sync health.
+- Cron Triggers refresh automatically; the static GitHub Pages site does not need to be rebuilt for each data release.
+- Data Copilot now prefers stored D1 observations and falls back to direct validated retrieval.
+
+See [`LIVE_DATA_SETUP.md`](LIVE_DATA_SETUP.md) for the one-time D1 setup and endpoint list.
